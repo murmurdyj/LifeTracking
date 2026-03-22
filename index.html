@@ -404,9 +404,14 @@ function dailyModal(log) {
       <span class="modal-title">📋 每日記錄</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
     </div>
-    <div style="margin-bottom:14px">
+    <div style="margin-bottom:10px">
       <label class="label">日期</label>
-      <input class="input" type="date" id="dl-date" value="${d.date}" />
+      <div class="date-stepper">
+        <button class="btn btn-ghost btn-sm" onclick="stepDailyDate(-1)">‹</button>
+        <span id="dl-date-label" style="font-size:15px;font-weight:600;flex:1;text-align:center"></span>
+        <button class="btn btn-ghost btn-sm" onclick="stepDailyDate(1)">›</button>
+      </div>
+      <input type="hidden" id="dl-date" value="${d.date}" />
     </div>
     <div class="sec-sm">身體 ＆ 活動</div>
     <div class="g2-form">
@@ -446,6 +451,23 @@ function dailyModal(log) {
       <button class="btn btn-primary" style="flex:1" onclick="doSaveDaily('${d.id||''}')">儲存記錄</button>
     </div>
   `);
+  // init date label
+  const dlLabel = document.getElementById('dl-date-label');
+  const dlVal = document.getElementById('dl-date')?.value;
+  if (dlLabel && dlVal) {
+    dlLabel.textContent = dlVal === today() ? '今天' : dlVal === daysAgo(1) ? '昨天' : fmtDate(dlVal);
+  }
+}
+
+function stepDailyDate(dir) {
+  const input = document.getElementById('dl-date');
+  const label = document.getElementById('dl-date-label');
+  if (!input) return;
+  const d = new Date(input.value + 'T12:00:00');
+  d.setDate(d.getDate() + dir);
+  input.value = d.toISOString().split('T')[0];
+  const v = input.value;
+  label.textContent = v === today() ? '今天' : v === daysAgo(1) ? '昨天' : fmtDate(v);
 }
 
 function field(id, label, unit, val, type='number', step='1') {
