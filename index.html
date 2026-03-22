@@ -25,7 +25,7 @@
   --purple: #9b7fc8; --purple-s: #f4f0fa;
   --orange: #e07a40; --orange-s: #fdf2ec;
   --teal: #4ab3a8; --teal-s: #edf7f6;
-  --tab-h: 56px; --safe: max(env(safe-area-inset-bottom, 30px), 30px);
+  --tab-h: 50px; --safe: max(env(safe-area-inset-bottom, 34px), 34px);
   --r: 20px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -39,7 +39,7 @@ html,body{height:100%;font-family:'DM Sans',system-ui,sans-serif;background:var(
 .card-sm{background:var(–card);border-radius:16px;box-shadow:0 1px 6px rgba(42,37,32,.06);border:1px solid var(–border);padding:14px 16px}
 
 /* Tab bar */
-.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:calc(var(–tab-h) + var(–safe));background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-top:1px solid var(–border);display:flex;align-items:flex-start;padding-top:6px;z-index:50}
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:calc(var(–tab-h) + var(–safe));background:rgba(255,255,255,.95);backdrop-filter:blur(16px);border-top:1px solid var(–border);display:flex;align-items:flex-start;padding-top:8px;padding-bottom:var(–safe);z-index:50}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;padding:4px 0;font-family:inherit}
 .tab-icon{font-size:22px;line-height:1;transition:transform .15s}
 .tab-label{font-size:10px;font-weight:500;color:var(–t3)}
