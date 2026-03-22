@@ -294,32 +294,8 @@ function saveFood(logs) { localStorage.setItem(FOOD_KEY, JSON.stringify(logs)); 
 
 // Seed data
 function seedData() {
-  const t = today();
-  const daily = [
-    {id:uid(),date:daysAgo(6),weight:72.4,bodyFat:22.1,sleep:7.0,steps:8200,water:2200,vegetables:2,stress:2,mood:4,lateSnack:false,overtime:false,caloriesTotal:1650,proteinTotal:95},
-    {id:uid(),date:daysAgo(5),weight:72.1,bodyFat:21.9,sleep:6.5,steps:9100,water:2500,vegetables:3,stress:3,mood:3,lateSnack:false,overtime:true,caloriesTotal:1720,proteinTotal:102},
-    {id:uid(),date:daysAgo(4),weight:72.8,bodyFat:22.3,sleep:5.5,steps:4500,water:1800,vegetables:1,stress:4,mood:2,lateSnack:true,overtime:true,caloriesTotal:2100,proteinTotal:78},
-    {id:uid(),date:daysAgo(3),weight:73.0,bodyFat:22.5,sleep:8.0,steps:7800,water:2400,vegetables:4,stress:2,mood:4,lateSnack:false,overtime:false,caloriesTotal:1580,proteinTotal:110},
-    {id:uid(),date:daysAgo(2),weight:72.6,bodyFat:22.0,sleep:7.5,steps:10200,water:2800,vegetables:5,stress:1,mood:5,lateSnack:false,overtime:false,caloriesTotal:1490,proteinTotal:118},
-    {id:uid(),date:daysAgo(1),weight:72.3,bodyFat:21.8,sleep:6.0,steps:6200,water:2000,vegetables:2,stress:3,mood:3,lateSnack:true,overtime:false,caloriesTotal:1850,proteinTotal:88},
-    {id:uid(),date:t,weight:72.1,bodyFat:21.7,sleep:7.0,steps:5400,water:1600,vegetables:2,stress:2,mood:4,lateSnack:false,overtime:false,caloriesTotal:920,proteinTotal:67},
-  ].map(d => ({...d, score: calcScore(d)}));
-
-  const food = [
-    {id:uid(),date:t,mealType:'早餐',foodName:'燕麥粥',amount:200,calories:180,protein:8,carbs:32,fat:3},
-    {id:uid(),date:t,mealType:'早餐',foodName:'水煮蛋',amount:2,calories:140,protein:12,carbs:1,fat:10},
-    {id:uid(),date:t,mealType:'午餐',foodName:'雞胸便當',amount:1,calories:520,protein:45,carbs:55,fat:12},
-    {id:uid(),date:t,mealType:'午餐',foodName:'無糖豆漿',amount:250,calories:80,protein:7,carbs:4,fat:4},
-    {id:uid(),date:daysAgo(1),mealType:'早餐',foodName:'全麥吐司',amount:2,calories:180,protein:8,carbs:34,fat:4},
-    {id:uid(),date:daysAgo(1),mealType:'午餐',foodName:'牛肉麵',amount:1,calories:650,protein:38,carbs:72,fat:18},
-    {id:uid(),date:daysAgo(1),mealType:'晚餐',foodName:'烤鮭魚',amount:150,calories:310,protein:34,carbs:0,fat:18},
-    {id:uid(),date:daysAgo(1),mealType:'宵夜',foodName:'餅乾',amount:50,calories:240,protein:3,carbs:32,fat:12},
-    {id:uid(),date:daysAgo(2),mealType:'早餐',foodName:'希臘優格',amount:200,calories:140,protein:18,carbs:8,fat:3},
-    {id:uid(),date:daysAgo(2),mealType:'午餐',foodName:'生菜沙拉+雞胸',amount:1,calories:380,protein:42,carbs:14,fat:14},
-    {id:uid(),date:daysAgo(2),mealType:'晚餐',foodName:'蕎麥麵',amount:1,calories:420,protein:18,carbs:68,fat:6},
-  ];
-  saveDaily(daily); saveFood(food);
-  return { daily, food };
+  saveDaily([]); saveFood([]);
+  return { daily: [], food: [] };
 }
 
 let STATE = (() => {
