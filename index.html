@@ -831,6 +831,36 @@ function doDeleteFood(id) {
 }
 
 // ─── Dashboard ────────────────────────────────────────────
+function genInsights(log, logs) {
+  const hints = [];
+  const recent = [...logs].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7);
+
+  // 連續熱量超標
+  const overCal = recent.filter(d=>d.caloriesTotal>1800);
+  if (overCal.length >= 2) hints.push({icon:'🔥',text:`最近 ${overCal.length} 天熱量超標，注意飲食控制`,color:'red'});
+
+  // 連續睡眠不足
+  const badSleep = recent.filter(d=>(d.sleep||0)<6.5);
+  if (badSleep.length >= 2) hints.push({icon:'😴',text:`最近 ${badSleep.length} 天睡眠不足，容易影響代謝`,color:'orange'});
+
+  // 壓力高且有宵夜
+  if ((log.stress||0)>=4 && log.lateSnack) hints.push({icon:'⚠️',text:'壓力大又吃宵夜，暴食風險提高',color:'red'});
+  else if ((log.stress||0)>=4) hints.push({icon:'😰',text:'今天壓力偏高，注意別用食物紓壓',color:'orange'});
+
+  // 蛋白質持續不足
+  const lowProt = recent.filter(d=>(d.proteinTotal||0)<80);
+  if (lowProt.length >= 3) hints.push({icon:'🥩',text:`最近 ${lowProt.length} 天蛋白質不足，肌肉流失風險`,color:'yellow'});
+
+  // 步數不足
+  if ((log.steps||0)<5000) hints.push({icon:'👟',text:'今天步數很少，有機會多走走',color:'yellow'});
+
+  // 今天狀況好
+  if ((log.score||0)>=80) hints.push({icon:'🌟',text:'今天各項指標都不錯，繼續保持！',color:'green'});
+  else if ((log.score||0)>=60 && hints.length===0) hints.push({icon:'👍',text:'今天表現還不錯，再加把勁',color:'green'});
+
+  return hints.slice(0,3);
+}
+
 function renderDashboard() {
   const el = document.getElementById('p-dashboard');
   const log = getTodayLog();
@@ -840,13 +870,12 @@ function renderDashboard() {
     el.innerHTML = `
       <div class="ph">
         <div class="ph-left"><div class="eyebrow">今天</div><div class="title">${fmtDateLong(t)}</div></div>
-        <button class="btn btn-primary" onclick="dailyModal(null)">+ 新增今日</button>
       </div>
       <div class="empty">
         <div class="empty-icon">🌱</div>
         <div class="empty-title">今天還沒有記錄</div>
-        <div class="empty-desc">點擊「新增今日」開始記錄你的一天</div>
-        <button class="btn btn-primary" onclick="dailyModal(null)">+ 新增今日記錄</button>
+        <div class="empty-desc">先去日記錄頁新增今天的數據</div>
+        <button class="btn btn-primary" onclick="switchTab('daily')">前往日記錄 →</button>
       </div>`;
     return;
   }
@@ -855,19 +884,18 @@ function renderDashboard() {
   const risk = calcFatRisk(log);
   const riskColor = risk > 60 ? 'red' : risk > 30 ? 'yellow' : 'green';
   const riskLabel = risk > 60 ? '高風險' : risk > 30 ? '中等' : '低風險';
-
   const sleepOk = (log.sleep||0) >= 6.5, stepsOk = (log.steps||0) >= 7000;
   const calOk = (log.caloriesTotal||0) >= 1400 && (log.caloriesTotal||0) <= 1800;
   const protOk = (log.proteinTotal||0) >= 100;
-
   const ring = ringHTML(sc, scoreColor(sc));
   const moodEmojis = ['😞','😕','😐','🙂','😄'];
   const stressEmojis = ['😌','🙂','😐','😣','😰'];
+  const insights = genInsights(log, getDaily());
+  const insightColorMap = {green:'var(--green-s),var(--green)',yellow:'var(--yellow-s),var(--yellow)',red:'var(--red-s),var(--red)',orange:'var(--orange-s),var(--orange)'};
 
   el.innerHTML = `
     <div class="ph">
       <div class="ph-left"><div class="eyebrow">今天</div><div class="title">${fmtDateLong(t)}</div></div>
-      <button class="btn btn-ghost btn-sm" onclick="dailyModal(${JSON.stringify(log).replace(/"/g,'&quot;')})">✏️ 編輯</button>
     </div>
 
     <div class="card" style="margin-bottom:10px">
@@ -887,7 +915,19 @@ function renderDashboard() {
       </div>
     </div>
 
-    <div class="card-sm" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+    ${insights.length ? `
+    <div class="sec">智慧提醒</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px">
+      ${insights.map(h => {
+        const [bg,fg] = (insightColorMap[h.color]||insightColorMap.green).split(',');
+        return `<div class="card-sm" style="display:flex;align-items:center;gap:10px;background:${bg}">
+          <span style="font-size:20px">${h.icon}</span>
+          <span style="font-size:14px;font-weight:500;color:${fg};flex:1">${h.text}</span>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+
+    <div class="card-sm" style="margin-bottom:10px;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
       <div>
         <div style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:4px">🔴 今天容易變胖程度</div>
         <div style="font-size:22px;font-weight:700">${risk}<span style="font-size:13px;color:var(--t3);font-weight:400"> / 100</span></div>
