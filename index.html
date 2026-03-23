@@ -625,68 +625,88 @@ function pickMeal(meal) {
   document.getElementById('fd-food-form').style.display = isWater ? 'none' : '';
 }
 
-// ─── USDA FoodData Central search ────────────────────────
+// ─── Food search ─────────────────────────────────────────
+const BUILTIN_FOODS = [
+  {n:'雞胸肉',cal:165,p:31,c:0,f:4},{n:'水煮蛋',cal:155,p:13,c:1,f:11},
+  {n:'白米飯',cal:130,p:3,c:28,f:0},{n:'燕麥',cal:389,p:17,c:66,f:7},
+  {n:'豆腐',cal:76,p:8,c:2,f:5},{n:'鮭魚',cal:208,p:20,c:0,f:13},
+  {n:'地瓜',cal:86,p:2,c:20,f:0},{n:'花椰菜',cal:34,p:3,c:7,f:0},
+  {n:'牛奶',cal:61,p:3,c:5,f:3},{n:'希臘優格',cal:97,p:9,c:6,f:4},
+  {n:'香蕉',cal:89,p:1,c:23,f:0},{n:'蘋果',cal:52,p:0,c:14,f:0},
+  {n:'花生醬',cal:588,p:25,c:20,f:50},{n:'雞蛋',cal:155,p:13,c:1,f:11},
+  {n:'豬里肌',cal:143,p:22,c:0,f:6},{n:'牛肉',cal:250,p:26,c:0,f:15},
+  {n:'鮪魚罐頭',cal:116,p:26,c:0,f:1},{n:'毛豆',cal:121,p:11,c:9,f:5},
+  {n:'蛋白粉',cal:400,p:80,c:7,f:5},{n:'全麥吐司',cal:247,p:9,c:46,f:4},
+  {n:'無糖豆漿',cal:33,p:3,c:1,f:2},{n:'茶葉蛋',cal:140,p:12,c:1,f:9},
+  {n:'滷雞腿',cal:210,p:28,c:2,f:10},{n:'便當雞腿',cal:380,p:30,c:35,f:12},
+  {n:'滷肉飯',cal:450,p:15,c:60,f:18},{n:'排骨便當',cal:520,p:25,c:60,f:20},
+  {n:'雞腿便當',cal:480,p:28,c:55,f:16},{n:'牛肉麵',cal:580,p:30,c:70,f:16},
+  {n:'蛋炒飯',cal:420,p:12,c:60,f:16},{n:'水餃(10顆)',cal:400,p:18,c:50,f:14},
+];
+
 let searchTimer = null;
 function debounceSearch(q) {
   clearTimeout(searchTimer);
   const res = document.getElementById('fd-results');
-  if (!q || q.length < 2) { res.innerHTML = ''; return; }
-  res.innerHTML = '<div class="search-results"><div class="search-loading">搜尋中…</div></div>';
-  searchTimer = setTimeout(() => searchUSDA(q), 600);
+  if (!q || q.length < 1) { res.innerHTML = ''; return; }
+  // 即時內建清單
+  const matches = BUILTIN_FOODS.filter(f => f.n.includes(q));
+  if (matches.length) {
+    window._searchProducts = matches.map(f => ({_builtin:true,...f}));
+    res.innerHTML = `<div class="search-results">${matches.map((f,i) => `
+      <div class="search-item" onclick="fillFromSearch(${i})">
+        <div class="search-name">${f.n}</div>
+        <div class="search-sub">${f.cal}kcal / 100g · 蛋白 ${f.p}g · 醣 ${f.c}g · 脂 ${f.f}g</div>
+      </div>`).join('')}</div>`;
+  } else {
+    res.innerHTML = '<div class="search-results"><div class="search-loading">搜尋中…</div></div>';
+  }
+  searchTimer = setTimeout(() => searchUSDA(q, matches.length), 500);
 }
 
-async function searchUSDA(q) {
+async function searchUSDA(q, hasBuiltin) {
   const res = document.getElementById('fd-results');
   try {
-    // USDA demo key allows ~30 req/min, no signup needed
     const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(q)}&pageSize=8&dataType=SR%20Legacy,Foundation,Survey%20(FNDDS)&api_key=OMadsaU9BKiFor69wXapXiPZXMlg1yHOFyHFPL7g`;
     const data = await fetch(url).then(r => r.json());
-    const foods = (data.foods || []).filter(f => f.foodNutrients);
+    const foods = (data.foods||[]).filter(f => f.foodNutrients);
     if (!foods.length) {
-      res.innerHTML = '<div class="search-results"><div class="search-empty">找不到結果，請手動輸入</div></div>';
+      if (!hasBuiltin) res.innerHTML = '<div class="search-results"><div class="search-empty">找不到結果，請手動輸入</div></div>';
       return;
     }
+    const getNutr = (f, ids) => { for (const id of ids) { const n = f.foodNutrients.find(n=>n.nutrientId===id); if (n?.value) return Math.round(n.value); } return 0; };
     window._searchProducts = foods;
-    res.innerHTML = `<div class="search-results">${foods.map((f, i) => {
-      const getNutr = (ids) => {
-        for (const id of ids) {
-          const n = f.foodNutrients.find(n => n.nutrientId === id);
-          if (n?.value) return Math.round(n.value);
-        }
-        return 0;
-      };
-      const cal  = getNutr([1008, 2047, 2048]);
-      const prot = getNutr([1003]);
-      const carb = getNutr([1005]);
-      const fat  = getNutr([1004]);
-      const name = f.description || '未知';
-      const cat  = f.foodCategory ? ` · ${f.foodCategory}` : '';
+    res.innerHTML = `<div class="search-results">${foods.map((f,i) => {
+      const cal=getNutr(f,[1008,2047,2048]), prot=getNutr(f,[1003]), carb=getNutr(f,[1005]), fat=getNutr(f,[1004]);
       return `<div class="search-item" onclick="fillFromSearch(${i})">
-        <div class="search-name">${name}</div>
-        <div class="search-sub">${cal}kcal / 100g · 蛋白 ${prot}g · 醣 ${carb}g · 脂 ${fat}g${cat}</div>
+        <div class="search-name">${f.description}</div>
+        <div class="search-sub">${cal}kcal / 100g · 蛋白 ${prot}g · 醣 ${carb}g · 脂 ${fat}g</div>
       </div>`;
     }).join('')}</div>`;
   } catch(e) {
-    res.innerHTML = '<div class="search-results"><div class="search-empty">搜尋失敗，請手動輸入</div></div>';
+    if (!hasBuiltin) res.innerHTML = '<div class="search-results"><div class="search-empty">搜尋失敗，請手動輸入</div></div>';
   }
 }
 
 function fillFromSearch(idx) {
-  const f = window._searchProducts[idx];
-  if (!f) return;
-  const getNutr = (ids) => {
-    for (const id of ids) {
-      const n = f.foodNutrients.find(n => n.nutrientId === id);
-      if (n?.value) return Math.round(n.value);
-    }
-    return 0;
-  };
-  document.getElementById('fd-name').value = f.description || '';
-  document.getElementById('fd-amount').value = 100;
-  document.getElementById('fd-cal').value  = getNutr([1008, 2047, 2048]);
-  document.getElementById('fd-prot').value = getNutr([1003]);
-  document.getElementById('fd-carb').value = getNutr([1005]);
-  document.getElementById('fd-fat').value  = getNutr([1004]);
+  const item = window._searchProducts[idx];
+  if (!item) return;
+  if (item._builtin) {
+    document.getElementById('fd-name').value = item.n;
+    document.getElementById('fd-amount').value = 100;
+    document.getElementById('fd-cal').value  = item.cal;
+    document.getElementById('fd-prot').value = item.p;
+    document.getElementById('fd-carb').value = item.c;
+    document.getElementById('fd-fat').value  = item.f;
+  } else {
+    const getNutr = (ids) => { for (const id of ids) { const n = item.foodNutrients.find(n=>n.nutrientId===id); if (n?.value) return Math.round(n.value); } return 0; };
+    document.getElementById('fd-name').value  = item.description || '';
+    document.getElementById('fd-amount').value = 100;
+    document.getElementById('fd-cal').value   = getNutr([1008,2047,2048]);
+    document.getElementById('fd-prot').value  = getNutr([1003]);
+    document.getElementById('fd-carb').value  = getNutr([1005]);
+    document.getElementById('fd-fat').value   = getNutr([1004]);
+  }
   document.getElementById('fd-results').innerHTML = '';
   document.getElementById('fd-search').value = '';
 }
