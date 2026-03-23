@@ -639,7 +639,7 @@ async function searchUSDA(q) {
   const res = document.getElementById('fd-results');
   try {
     // USDA demo key allows ~30 req/min, no signup needed
-    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(q)}&pageSize=8&dataType=SR%20Legacy,Foundation,Survey%20(FNDDS)&api_key=DEMO_KEY`;
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(q)}&pageSize=8&dataType=SR%20Legacy,Foundation,Survey%20(FNDDS)&api_key=OMadsaU9BKiFor69wXapXiPZXMlg1yHOFyHFPL7g`;
     const data = await fetch(url).then(r => r.json());
     const foods = (data.foods || []).filter(f => f.foodNutrients);
     if (!foods.length) {
