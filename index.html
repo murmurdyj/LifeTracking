@@ -424,8 +424,21 @@ function dailyModal(log) {
       ${field('dl-steps','👟 步數','步',d.steps,'number','100')}
       ${field('dl-water','💧 飲水','ml',d.water,'number','50')}
     </div>
-    <div style="margin:14px 0">
+    <div class="sec-sm">心率 <span style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none">選填，Apple Watch 上查看</span></div>
+    <div class="g2-form">
+      ${field('dl-hr','❤️ 靜息心率','bpm',d.heartRate,'number','1')}
+      ${field('dl-br','🫁 呼吸率','次/分',d.breathRate,'number','1')}
+    </div>
+    <div style="margin:12px 0 6px">
       <label class="label">😰 壓力程度</label>
+      <div id="dl-stress-suggest" style="display:none;background:var(--orange-soft,#fdf2ec);border-radius:12px;padding:10px 14px;margin-bottom:8px;border:1px solid #f0c4a0">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:600;color:#7a3a10">App 推算壓力</span>
+          <span id="dl-stress-badge" style="background:var(--orange);color:#fff;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:600"></span>
+        </div>
+        <div id="dl-stress-reason" style="font-size:12px;color:#a05020;line-height:1.6"></div>
+        <button class="btn" style="margin-top:8px;background:var(--orange);color:#fff;padding:6px 14px;font-size:13px;width:100%" onclick="applyStressSuggest()">採用建議值</button>
+      </div>
       <div class="rating" id="dl-stress">
         ${[1,2,3,4,5].map(v=>`<button class="r-btn${d.stress===v?' on':''}" data-v="${v}" onclick="pickRating('dl-stress',${v})">${v}</button>`).join('')}
       </div>
@@ -460,6 +473,54 @@ function dailyModal(log) {
   if (dlLabel && dlVal) {
     dlLabel.textContent = dlVal === today() ? '今天' : dlVal === daysAgo(1) ? '昨天' : fmtDate(dlVal);
   }
+  // attach stress calculation listeners
+  ['dl-sleep','dl-steps','dl-hr','dl-br','dl-ot'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', calcStressSuggest);
+    if (el && el.type === 'checkbox') el.addEventListener('change', calcStressSuggest);
+  });
+  calcStressSuggest();
+}
+
+function calcStressSuggest() {
+  const sleep = parseFloat(document.getElementById('dl-sleep')?.value) || 0;
+  const steps = parseFloat(document.getElementById('dl-steps')?.value) || 0;
+  const hr    = parseFloat(document.getElementById('dl-hr')?.value) || 0;
+  const br    = parseFloat(document.getElementById('dl-br')?.value) || 0;
+  const ot    = document.getElementById('dl-ot')?.checked || false;
+
+  if (!sleep && !steps && !hr) return; // 沒有任何資料不顯示
+
+  let score = 1;
+  const reasons = [];
+
+  if (sleep > 0 && sleep < 6) { score += 2; reasons.push('睡眠嚴重不足 +2'); }
+  else if (sleep > 0 && sleep < 6.5) { score += 1; reasons.push('睡眠不足 +1'); }
+
+  if (steps > 0 && steps < 3000) { score += 1; reasons.push('活動量很低 +1'); }
+  else if (steps > 0 && steps < 6000) { score += 0.5; reasons.push('活動量偏低 +0.5'); }
+
+  if (ot) { score += 1; reasons.push('有加班 +1'); }
+
+  if (hr > 0 && hr > 80) { score += 1; reasons.push(`心率偏高(${hr}bpm) +1`); }
+  else if (hr > 0 && hr > 90) { score += 1; reasons.push(`心率很高(${hr}bpm) +1`); }
+
+  if (br > 0 && br > 18) { score += 0.5; reasons.push(`呼吸率偏高(${br}) +0.5`); }
+
+  score = Math.min(5, Math.round(score));
+
+  const suggest = document.getElementById('dl-stress-suggest');
+  const badge = document.getElementById('dl-stress-badge');
+  const reason = document.getElementById('dl-stress-reason');
+  if (!suggest) return;
+  suggest.style.display = 'block';
+  badge.textContent = `建議 ${score} 分`;
+  reason.textContent = reasons.join('　／　') || '各項指標正常';
+  window._stressSuggest = score;
+}
+
+function applyStressSuggest() {
+  if (window._stressSuggest) pickRating('dl-stress', window._stressSuggest);
 }
 
 function stepDailyDate(dir) {
@@ -507,6 +568,8 @@ function doSaveDaily(existingId) {
     sleep: parseFloat(document.getElementById('dl-sleep').value)||null,
     steps: parseFloat(document.getElementById('dl-steps').value)||null,
     water: parseFloat(document.getElementById('dl-water').value)||null,
+    heartRate: parseFloat(document.getElementById('dl-hr').value)||null,
+    breathRate: parseFloat(document.getElementById('dl-br').value)||null,
     stress: getPickedRating('dl-stress'),
     mood: getPickedRating('dl-mood'),
     lateSnack: document.getElementById('dl-snack').checked,
@@ -994,7 +1057,7 @@ function statCard(emoji, title, value, unit, colorKey, status, target) {
   return `<div class="card-sm">
     <div class="sc-head"><span class="sc-emoji">${emoji}</span><span class="sc-title">${title}</span>${badge}</div>
     <div style="display:flex;align-items:baseline;gap:8px">
-      ${value!=null&&value!==''&&value!==null ? `<span class="sc-val">${value}<span class="sc-unit">${unit}</span></span>` : '<span class="sc-empty">—</span>'}
+      ${value!=null&&value!==''&&value!==null ? `<span class="sc-val">${typeof value==='number'?(Number.isInteger(value)?value:parseFloat(value.toFixed(1))):value}<span class="sc-unit">${unit}</span></span>` : '<span class="sc-empty">—</span>'}
       ${target ? `<span class="sc-target">${target}</span>` : ''}
     </div>
   </div>`;
@@ -1030,6 +1093,7 @@ function renderDaily() {
     <div style="height:12px"></div>
     <div class="card-sm backup">
       <div class="backup-title">💾 資料備份</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:10px">日記錄＋飲食紀錄一起備份</div>
       <div class="backup-row">
         <button class="btn btn-ghost" style="flex:1" onclick="exportJSON()">⬇️ 匯出 JSON</button>
         <label class="btn btn-ghost" style="flex:1;cursor:pointer">⬆️ 匯入 JSON<input type="file" accept=".json" style="display:none" onchange="handleImport(this)"></label>
@@ -1050,28 +1114,32 @@ function handleImport(input) {
 
 // ─── Food Log page ────────────────────────────────────────
 let foodDate = today();
+let foodViewMode = 'day'; // 'day' | 'history'
+
 function renderFood() {
+  if (foodViewMode === 'history') { renderFoodHistory(); return; }
   const el = document.getElementById('p-food');
   const allDates = [...new Set(getFood().map(f=>f.date))].sort((a,b)=>b.localeCompare(a));
   const dates = allDates.includes(today()) ? allDates : [today(),...allDates];
   const foods = getFood().filter(f=>f.date===foodDate);
   const MEALS = ['早餐','午餐','晚餐','宵夜','點心','飲水'];
   const MEAL_E = {早餐:'🌅',午餐:'☀️',晚餐:'🌙',宵夜:'🌛',點心:'🍪',飲水:'💧'};
-  const totalCal = foods.reduce((a,f)=>a+(f.calories||0),0);
-  const totalProt = foods.reduce((a,f)=>a+(f.protein||0),0);
-  const totalCarb = foods.reduce((a,f)=>a+(f.carbs||0),0);
-  const totalFat = foods.reduce((a,f)=>a+(f.fat||0),0);
-
+  const totalCal = foods.filter(f=>f.mealType!=='飲水').reduce((a,f)=>a+(f.calories||0),0);
+  const totalProt = Math.round(foods.filter(f=>f.mealType!=='飲水').reduce((a,f)=>a+(f.protein||0),0)*10)/10;
+  const totalCarb = Math.round(foods.filter(f=>f.mealType!=='飲水').reduce((a,f)=>a+(f.carbs||0),0)*10)/10;
+  const totalFat = Math.round(foods.filter(f=>f.mealType!=='飲水').reduce((a,f)=>a+(f.fat||0),0)*10)/10;
   const calPct = totalCal > 0 ? (totalProt*4/totalCal*100).toFixed(0) : 0;
   const carbPct = totalCal > 0 ? (totalCarb*4/totalCal*100).toFixed(0) : 0;
   const fatPct = totalCal > 0 ? (totalFat*9/totalCal*100).toFixed(0) : 0;
-
   const totalWater = foods.filter(f=>f.mealType==='飲水').reduce((a,f)=>a+(f.amount||0),0);
 
   el.innerHTML = `
     <div class="ph">
       <div class="ph-left"><div class="eyebrow">飲食記錄</div><div class="title">Food Log</div></div>
-      <button class="btn btn-primary btn-sm" onclick="foodModal({date:'${foodDate}',mealType:'午餐'})">+ 新增</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="foodViewMode='history';renderFood()">📅 歷史</button>
+        <button class="btn btn-primary btn-sm" onclick="foodModal({date:'${foodDate}',mealType:'午餐'})">+ 新增</button>
+      </div>
     </div>
     <div class="date-scroller">
       ${dates.map(d=>`<button class="date-chip${d===foodDate?' on':''}" onclick="switchFoodDate('${d}')">${d===today()?'今天':fmtDate(d)}</button>`).join('')}
@@ -1113,6 +1181,35 @@ function renderFood() {
 
 function switchFoodDate(d) { foodDate = d; renderFood(); }
 function openFoodEdit(food) { foodModal(food); }
+
+function renderFoodHistory() {
+  const el = document.getElementById('p-food');
+  const allDates = [...new Set(getFood().map(f=>f.date))].sort((a,b)=>b.localeCompare(a));
+  const t = today();
+  el.innerHTML = `
+    <div class="ph">
+      <div class="ph-left"><div class="eyebrow">飲食記錄</div><div class="title">歷史總覽</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="foodViewMode='day';renderFood()">← 回今天</button>
+    </div>
+    ${allDates.length === 0 ? `<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-title">還沒有飲食記錄</div></div>` :
+      `<div class="log-list">${allDates.map(date => {
+        const foods = getFood().filter(f=>f.date===date && f.mealType!=='飲水');
+        const water = getFood().filter(f=>f.date===date && f.mealType==='飲水').reduce((a,f)=>a+(f.amount||0),0);
+        const cal = foods.reduce((a,f)=>a+(f.calories||0),0);
+        const prot = Math.round(foods.reduce((a,f)=>a+(f.protein||0),0)*10)/10;
+        const isT = date === t;
+        return `<button class="card-sm log-row${isT?' today-row':''}" onclick="foodViewMode='day';foodDate='${date}';renderFood()">
+          <div style="flex:1">
+            <div class="log-date">${fmtDate(date)}${isT?'<span class="today-pill">今天</span>':''}</div>
+            <div class="log-meta">${cal}kcal · 蛋白 ${prot}g${water?' · 💧'+water+'ml':''}</div>
+          </div>
+          <span class="log-arrow">›</span>
+        </button>`;
+      }).join('')}</div>`
+    }
+    <div style="height:16px"></div>
+  `;
+}
 
 // ─── Trends ───────────────────────────────────────────────
 let trendCharts = {};
