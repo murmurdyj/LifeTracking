@@ -215,6 +215,11 @@ canvas{width:100%!important}
 .meal-chip{padding:8px 16px;border-radius:99px;font-size:14px;font-weight:500;background:var(--soft);border:1.5px solid var(--border);color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s}
 .meal-chip.on{background:var(--t1);color:#fff;border-color:var(--t1)}
 
+/* Water presets */
+.water-presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.water-preset-btn{padding:7px 14px;border-radius:99px;font-size:13px;font-weight:600;background:var(--blue-s);border:1.5px solid var(--blue);color:var(--blue);cursor:pointer;font-family:inherit;transition:all .15s}
+.water-preset-btn:active{background:var(--blue);color:#fff}
+
 /* Food search */
 .search-bar{display:flex;gap:8px;margin-bottom:10px}
 .search-bar .input{flex:1}
@@ -286,11 +291,12 @@ function calcFatRisk(log) {
 
 function recalcDay(dailyLogs, foodLogs, date) {
   const foods = foodLogs.filter(f => f.date === date);
-  const cal = foods.reduce((a,f) => a+(f.calories||0), 0);
-  const prot = foods.reduce((a,f) => a+(f.protein||0), 0);
+  const cal = foods.filter(f=>f.mealType!=='飲水').reduce((a,f) => a+(f.calories||0), 0);
+  const prot = foods.filter(f=>f.mealType!=='飲水').reduce((a,f) => a+(f.protein||0), 0);
+  const water = foods.filter(f=>f.mealType==='飲水').reduce((a,f) => a+(f.amount||0), 0);
   return dailyLogs.map(dl => {
     if (dl.date !== date) return dl;
-    const u = {...dl, caloriesTotal: cal, proteinTotal: prot};
+    const u = {...dl, caloriesTotal: cal, proteinTotal: prot, water: water || dl.water || 0};
     u.score = calcScore(u);
     return u;
   });
@@ -523,10 +529,11 @@ function doDeleteDaily(date) {
 function foodModal(food) {
   const isEdit = !!food?.id;
   const d = food || { date: today(), mealType:'午餐', foodName:'', amount:'', calories:'', protein:'', carbs:'', fat:'' };
+  const isWater = d.mealType === '飲水';
   showModal(`
     <div class="handle"></div>
     <div class="modal-head">
-      <span class="modal-title">🍽️ 飲食記錄</span>
+      <span class="modal-title">${isWater ? '💧 飲水記錄' : '🍽️ 飲食記錄'}</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
     </div>
 
@@ -541,35 +548,46 @@ function foodModal(food) {
     </div>
 
     <div style="margin-bottom:12px">
-      <label class="label">餐別</label>
+      <label class="label">類別</label>
       <div class="meal-picker" id="fd-meal-picker">
-        ${['早餐','午餐','晚餐','宵夜','點心'].map(m=>`<button class="meal-chip${d.mealType===m?' on':''}" onclick="pickMeal('${m}')">${m}</button>`).join('')}
+        ${['早餐','午餐','晚餐','宵夜','點心','飲水'].map(m=>`<button class="meal-chip${d.mealType===m?' on':''}" onclick="pickMeal('${m}')">${m==='飲水'?'💧 飲水':m}</button>`).join('')}
       </div>
       <input type="hidden" id="fd-meal" value="${d.mealType}">
     </div>
 
-    <div class="sec-sm" style="margin:8px 0 6px">🔍 搜尋食品資料庫</div>
-    <div class="search-bar" style="margin-bottom:6px">
-      <input class="input input-sm" id="fd-search" type="text" placeholder="輸入食物名稱搜尋…" oninput="debounceSearch(this.value)">
-      <button class="btn btn-ghost btn-sm" onclick="startBarcode()" title="掃條碼">📷</button>
+    <div id="fd-water-form" style="${isWater?'':'display:none'}">
+      <div style="margin-bottom:8px">
+        <label class="label">💧 飲水量 (ml)</label>
+        <input class="input" type="number" id="fd-water-ml" min="0" step="50" placeholder="250" value="${isWater?(d.amount||''):''}">
+      </div>
+      <div class="water-presets">
+        ${[100,200,250,300,500].map(v=>`<button class="water-preset-btn" onclick="setWaterPreset(${v})">${v}ml</button>`).join('')}
+      </div>
     </div>
-    <div id="fd-results"></div>
 
-    <div class="sec-sm" style="margin:8px 0 6px">手動填寫</div>
-    <div style="margin-bottom:8px">
-      <label class="label">食物名稱</label>
-      <input class="input input-sm" type="text" id="fd-name" placeholder="例：雞胸便當" value="${d.foodName||''}">
-    </div>
-    <div style="margin-bottom:8px">
-      <label class="label">份量 (g / 份)</label>
-      <input class="input input-sm" type="number" id="fd-amount" min="0" placeholder="100" value="${d.amount||''}">
-    </div>
-    <div class="sec-sm" style="margin:8px 0 6px">營養成分</div>
-    <div class="g2-form" style="margin-bottom:0;gap:8px">
-      ${field('fd-cal','🔥 熱量','kcal',d.calories)}
-      ${field('fd-prot','🥩 蛋白質','g',d.protein)}
-      ${field('fd-carb','🍚 醣類','g',d.carbs)}
-      ${field('fd-fat','🧈 脂肪','g',d.fat)}
+    <div id="fd-food-form" style="${isWater?'display:none':''}">
+      <div class="sec-sm" style="margin:8px 0 6px">🔍 搜尋食品資料庫</div>
+      <div class="search-bar" style="margin-bottom:6px">
+        <input class="input input-sm" id="fd-search" type="text" placeholder="輸入食物名稱搜尋…" oninput="debounceSearch(this.value)">
+        <button class="btn btn-ghost btn-sm" onclick="startBarcode()" title="掃條碼">📷</button>
+      </div>
+      <div id="fd-results"></div>
+      <div class="sec-sm" style="margin:8px 0 6px">手動填寫</div>
+      <div style="margin-bottom:8px">
+        <label class="label">食物名稱</label>
+        <input class="input input-sm" type="text" id="fd-name" placeholder="例：雞胸便當" value="${d.foodName||''}">
+      </div>
+      <div style="margin-bottom:8px">
+        <label class="label">份量 (g / 份)</label>
+        <input class="input input-sm" type="number" id="fd-amount" min="0" placeholder="100" value="${d.amount||''}">
+      </div>
+      <div class="sec-sm" style="margin:8px 0 6px">營養成分</div>
+      <div class="g2-form" style="margin-bottom:0;gap:8px">
+        ${field('fd-cal','🔥 熱量','kcal',d.calories)}
+        ${field('fd-prot','🥩 蛋白質','g',d.protein)}
+        ${field('fd-carb','🍚 醣類','g',d.carbs)}
+        ${field('fd-fat','🧈 脂肪','g',d.fat)}
+      </div>
     </div>
     <div class="modal-actions" style="margin-top:14px">
       ${isEdit ? `<button class="btn btn-danger" onclick="doDeleteFood('${d.id}')">🗑</button>` : ''}
@@ -601,7 +619,10 @@ function stepFoodDate(dir) {
 
 function pickMeal(meal) {
   document.getElementById('fd-meal').value = meal;
-  document.querySelectorAll('.meal-chip').forEach(b => b.classList.toggle('on', b.textContent === meal));
+  document.querySelectorAll('.meal-chip').forEach(b => b.classList.toggle('on', b.textContent.includes(meal)));
+  const isWater = meal === '飲水';
+  document.getElementById('fd-water-form').style.display = isWater ? '' : 'none';
+  document.getElementById('fd-food-form').style.display = isWater ? 'none' : '';
 }
 
 // ─── USDA FoodData Central search ────────────────────────
@@ -753,20 +774,30 @@ async function lookupBarcode(code) {
   }
 }
 
+function setWaterPreset(ml) {
+  document.getElementById('fd-water-ml').value = ml;
+}
+
 function doSaveFood(existingId) {
-  const name = document.getElementById('fd-name').value.trim();
-  if (!name) { alert('請輸入食物名稱'); return; }
-  const food = {
-    id: existingId || uid(),
-    date: document.getElementById('fd-date').value,
-    mealType: document.getElementById('fd-meal').value,
-    foodName: name,
-    amount: parseFloat(document.getElementById('fd-amount').value)||0,
-    calories: parseFloat(document.getElementById('fd-cal').value)||0,
-    protein: parseFloat(document.getElementById('fd-prot').value)||0,
-    carbs: parseFloat(document.getElementById('fd-carb').value)||0,
-    fat: parseFloat(document.getElementById('fd-fat').value)||0,
-  };
+  const meal = document.getElementById('fd-meal').value;
+  const date = document.getElementById('fd-date').value;
+  let food;
+  if (meal === '飲水') {
+    const ml = parseFloat(document.getElementById('fd-water-ml').value) || 0;
+    if (!ml) { alert('請輸入飲水量'); return; }
+    food = { id: existingId || uid(), date, mealType: '飲水', foodName: '飲水', amount: ml, calories: 0, protein: 0, carbs: 0, fat: 0 };
+  } else {
+    const name = document.getElementById('fd-name')?.value.trim();
+    if (!name) { alert('請輸入食物名稱'); return; }
+    food = {
+      id: existingId || uid(), date, mealType: meal, foodName: name,
+      amount: parseFloat(document.getElementById('fd-amount').value)||0,
+      calories: parseFloat(document.getElementById('fd-cal').value)||0,
+      protein: parseFloat(document.getElementById('fd-prot').value)||0,
+      carbs: parseFloat(document.getElementById('fd-carb').value)||0,
+      fat: parseFloat(document.getElementById('fd-fat').value)||0,
+    };
+  }
   if (existingId) updateFood(food); else addFood(food);
   closeModal();
   renderAll();
@@ -964,8 +995,8 @@ function renderFood() {
   const allDates = [...new Set(getFood().map(f=>f.date))].sort((a,b)=>b.localeCompare(a));
   const dates = allDates.includes(today()) ? allDates : [today(),...allDates];
   const foods = getFood().filter(f=>f.date===foodDate);
-  const MEALS = ['早餐','午餐','晚餐','宵夜','點心'];
-  const MEAL_E = {早餐:'🌅',午餐:'☀️',晚餐:'🌙',宵夜:'🌛',點心:'🍪'};
+  const MEALS = ['早餐','午餐','晚餐','宵夜','點心','飲水'];
+  const MEAL_E = {早餐:'🌅',午餐:'☀️',晚餐:'🌙',宵夜:'🌛',點心:'🍪',飲水:'💧'};
   const totalCal = foods.reduce((a,f)=>a+(f.calories||0),0);
   const totalProt = foods.reduce((a,f)=>a+(f.protein||0),0);
   const totalCarb = foods.reduce((a,f)=>a+(f.carbs||0),0);
@@ -974,6 +1005,8 @@ function renderFood() {
   const calPct = totalCal > 0 ? (totalProt*4/totalCal*100).toFixed(0) : 0;
   const carbPct = totalCal > 0 ? (totalCarb*4/totalCal*100).toFixed(0) : 0;
   const fatPct = totalCal > 0 ? (totalFat*9/totalCal*100).toFixed(0) : 0;
+
+  const totalWater = foods.filter(f=>f.mealType==='飲水').reduce((a,f)=>a+(f.amount||0),0);
 
   el.innerHTML = `
     <div class="ph">
@@ -989,21 +1022,26 @@ function renderFood() {
         <span class="macro mp">蛋白 ${totalProt}g</span>
         <span class="macro mc">醣類 ${totalCarb}g</span>
         <span class="macro mf">脂肪 ${totalFat}g</span>
+        ${totalWater>0?`<span class="macro" style="background:var(--blue-s);color:var(--blue)">💧 ${totalWater}ml</span>`:''}
       </div>
       ${totalCal>0?`<div class="bar-track"><div class="bar-seg bp" style="width:${calPct}%"></div><div class="bar-seg bc" style="width:${carbPct}%"></div><div class="bar-seg bf" style="width:${fatPct}%"></div></div>`:''}
     </div>
     ${foods.length === 0 ? `<div class="empty" style="padding-top:28px"><div class="empty-icon">🍽️</div><div class="empty-title">今天還沒有飲食記錄</div><div class="empty-desc">點擊「新增」開始記錄你的飲食</div><button class="btn btn-primary" onclick="foodModal({date:'${foodDate}',mealType:'午餐'})">+ 新增食物</button></div>` :
       MEALS.filter(m=>foods.some(f=>f.mealType===m)).map(meal => {
         const items = foods.filter(f=>f.mealType===meal);
-        const mCal = items.reduce((a,f)=>a+(f.calories||0),0);
+        const isW = meal === '飲水';
+        const mTotal = isW ? items.reduce((a,f)=>a+(f.amount||0),0) : items.reduce((a,f)=>a+(f.calories||0),0);
         return `<div class="meal-g">
-          <div class="meal-head"><span>${MEAL_E[meal]} ${meal}</span><span class="meal-cal">${mCal} kcal</span></div>
+          <div class="meal-head"><span>${MEAL_E[meal]} ${meal}</span><span class="meal-cal">${isW ? mTotal+'ml' : mTotal+' kcal'}</span></div>
           <div class="card" style="padding:0;overflow:hidden">
             ${items.map((food,i)=>`
               ${i>0?'<div class="hr"></div>':''}
               <div class="food-row" onclick='openFoodEdit(${JSON.stringify(food).replace(/'/g,"&#39;")})'>
-                <div style="flex:1"><div class="food-name">${food.foodName}</div><div class="food-detail">${food.amount?food.amount+'g · ':''}蛋白 ${food.protein}g</div></div>
-                <div class="food-cal">${food.calories}<span>kcal</span></div>
+                <div style="flex:1">
+                  <div class="food-name">${isW ? '💧 飲水' : food.foodName}</div>
+                  <div class="food-detail">${isW ? '' : (food.amount?food.amount+'g · ':'')+'蛋白 '+food.protein+'g'}</div>
+                </div>
+                <div class="food-cal">${isW ? food.amount : food.calories}<span>${isW ? 'ml' : 'kcal'}</span></div>
               </div>`).join('')}
           </div>
         </div>`;
