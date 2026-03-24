@@ -1141,9 +1141,10 @@ function renderFood() {
         <button class="btn btn-primary btn-sm" onclick="foodModal({date:'${foodDate}',mealType:'午餐'})">+ 新增</button>
       </div>
     </div>
-    <div class="date-scroller">
-      ${dates.map(d=>`<button class="date-chip${d===foodDate?' on':''}" onclick="switchFoodDate('${d}')">${d===today()?'今天':fmtDate(d)}</button>`).join('')}
-    </div>
+    ${foodDate !== today() ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="foodDate=today();renderFood()">← 回今天</button>
+      <span style="font-size:14px;font-weight:600;color:var(--t2)">${fmtDate(foodDate)}</span>
+    </div>` : ''}
     <div class="card nutr-bar">
       <div class="nutr-total">${totalCal}<span>kcal</span></div>
       <div class="nutr-macros">
