@@ -8,6 +8,20 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
+<script>
+// iOS Web App 跨日強制 reload
+(function(){
+  var key = 'lt_launch_date';
+  var saved = localStorage.getItem(key);
+  var now = new Date().toISOString().split('T')[0];
+  if (saved && saved !== now) {
+    localStorage.setItem(key, now);
+    window.location.reload(true);
+  } else {
+    localStorage.setItem(key, now);
+  }
+})();
+</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <title>LifeTrack</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -257,8 +271,8 @@ canvas{width:100%!important}
 
 <script>
 // ─── Utils ───────────────────────────────────────────────
-const today = () => new Date().toISOString().split('T')[0];
-const daysAgo = n => { const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; };
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const daysAgo = n => { const d = new Date(); d.setDate(d.getDate()-n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const fmtDate = d => new Date(d+'T12:00:00').toLocaleDateString('zh-TW',{month:'short',day:'numeric',weekday:'short'});
 const fmtDateLong = d => new Date(d+'T12:00:00').toLocaleDateString('zh-TW',{month:'long',day:'numeric',weekday:'short'});
 const uid = () => `id-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
