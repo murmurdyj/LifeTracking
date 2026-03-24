@@ -1291,28 +1291,20 @@ document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => switchTab(t.dataset.tab));
 });
 
-// 跨日自動更新
+// 跨日自動更新 - 三種觸發確保涵蓋所有情境
 let _lastDate = today();
-setInterval(() => {
+function checkDateChange() {
   const now = today();
   if (now !== _lastDate) {
     _lastDate = now;
     foodDate = now;
     renderAll();
   }
-}, 60000); // 每分鐘檢查一次
-
-// 每次 App 從背景回來也更新
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    const now = today();
-    if (now !== _lastDate) {
-      _lastDate = now;
-      foodDate = now;
-      renderAll();
-    }
-  }
-});
+}
+setInterval(checkDateChange, 60000);
+window.addEventListener('pageshow', checkDateChange);
+window.addEventListener('focus', checkDateChange);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkDateChange(); });
 
 // Initial render
 renderAll();
