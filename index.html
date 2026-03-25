@@ -1227,7 +1227,7 @@ function renderFood() {
                   <div class="food-name">${isW ? '💧 飲水' : food.foodName}</div>
                   <div class="food-detail">${isW ? '' : (food.amount?food.amount+'g · ':'')+'蛋白 '+food.protein+'g'}</div>
                 </div>
-                ${!isW ? `<button onclick="toggleFav(${JSON.stringify(food).replace(/'/g,"&#39;")})" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0 10px;line-height:1">${isFav(food.foodName)?'⭐':'☆'}</button>` : ''}
+                ${!isW ? `<button class="fav-btn" data-id="${food.id}" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0 10px;line-height:1">${isFav(food.foodName)?'⭐':'☆'}</button>` : ''}
                 <div class="food-cal" onclick='openFoodEdit(${JSON.stringify(food).replace(/'/g,"&#39;")})'>${isW ? food.amount : food.calories}<span>${isW ? 'ml' : 'kcal'}</span></div>
               </div>`).join('')}
           </div>
@@ -1236,6 +1236,13 @@ function renderFood() {
     }
     <div style="height:16px"></div>
   `;
+  el.querySelectorAll('.fav-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const food = getFood().find(f => f.id === btn.dataset.id);
+      if (food) toggleFav(food);
+    });
+  });
 }
 
 function switchFoodDate(d) { foodDate = d; renderFood(); }
