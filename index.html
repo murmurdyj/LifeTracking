@@ -725,24 +725,44 @@ const BUILTIN_FOODS = [
   {n:'蛋炒飯',cal:420,p:12,c:60,f:16},{n:'水餃(10顆)',cal:400,p:18,c:50,f:14},
 ];
 
+// ─── 常用食物清單 ─────────────────────────────────────────
+const FAV_KEY = 'lt2_favfoods';
+function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch { return []; } }
+function saveFavs(favs) { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); }
+function isFav(foodName) { return getFavs().some(f => f.n === foodName); }
+function toggleFav(food) {
+  let favs = getFavs();
+  const idx = favs.findIndex(f => f.n === food.foodName);
+  if (idx >= 0) { favs.splice(idx, 1); }
+  else { favs.unshift({ n: food.foodName, cal: food.calories, p: food.protein, c: food.carbs, f: food.fat, amount: food.amount }); }
+  saveFavs(favs);
+  renderFood();
+}
+
 let searchTimer = null;
 function debounceSearch(q) {
   clearTimeout(searchTimer);
   const res = document.getElementById('fd-results');
   if (!q || q.length < 1) { res.innerHTML = ''; return; }
-  // 即時內建清單
-  const matches = BUILTIN_FOODS.filter(f => f.n.includes(q));
-  if (matches.length) {
-    window._searchProducts = matches.map(f => ({_builtin:true,...f}));
-    res.innerHTML = `<div class="search-results">${matches.map((f,i) => `
+
+  // 常用清單優先
+  const favMatches = getFavs().filter(f => f.n.includes(q));
+  // 內建清單
+  const builtinMatches = BUILTIN_FOODS.filter(f => f.n.includes(q) && !favMatches.some(fav => fav.n === f.n));
+
+  const allLocal = [...favMatches.map(f=>({...f,_fav:true,_builtin:true})), ...builtinMatches.map(f=>({...f,_builtin:true}))];
+
+  if (allLocal.length) {
+    window._searchProducts = allLocal;
+    res.innerHTML = `<div class="search-results">${allLocal.map((f,i) => `
       <div class="search-item" onclick="fillFromSearch(${i})">
-        <div class="search-name">${f.n}</div>
-        <div class="search-sub">${f.cal}kcal / 100g · 蛋白 ${f.p}g · 醣 ${f.c}g · 脂 ${f.f}g</div>
+        <div class="search-name">${f._fav ? '⭐ ' : ''}${f.n}</div>
+        <div class="search-sub">${f.cal}kcal · 蛋白 ${f.p}g · 醣 ${f.c}g · 脂 ${f.f}g</div>
       </div>`).join('')}</div>`;
   } else {
     res.innerHTML = '<div class="search-results"><div class="search-loading">搜尋中…</div></div>';
   }
-  searchTimer = setTimeout(() => searchUSDA(q, matches.length), 500);
+  searchTimer = setTimeout(() => searchUSDA(q, allLocal.length), 500);
 }
 
 async function searchUSDA(q, hasBuiltin) {
@@ -1202,12 +1222,13 @@ function renderFood() {
           <div class="card" style="padding:0;overflow:hidden">
             ${items.map((food,i)=>`
               ${i>0?'<div class="hr"></div>':''}
-              <div class="food-row" onclick='openFoodEdit(${JSON.stringify(food).replace(/'/g,"&#39;")})'>
-                <div style="flex:1">
+              <div class="food-row" style="cursor:pointer">
+                <div style="flex:1" onclick='openFoodEdit(${JSON.stringify(food).replace(/'/g,"&#39;")})'>
                   <div class="food-name">${isW ? '💧 飲水' : food.foodName}</div>
                   <div class="food-detail">${isW ? '' : (food.amount?food.amount+'g · ':'')+'蛋白 '+food.protein+'g'}</div>
                 </div>
-                <div class="food-cal">${isW ? food.amount : food.calories}<span>${isW ? 'ml' : 'kcal'}</span></div>
+                ${!isW ? `<button onclick="toggleFav(${JSON.stringify(food).replace(/'/g,"&#39;")})" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0 10px;line-height:1">${isFav(food.foodName)?'⭐':'☆'}</button>` : ''}
+                <div class="food-cal" onclick='openFoodEdit(${JSON.stringify(food).replace(/'/g,"&#39;")})'>${isW ? food.amount : food.calories}<span>${isW ? 'ml' : 'kcal'}</span></div>
               </div>`).join('')}
           </div>
         </div>`;
