@@ -206,6 +206,11 @@ canvas{width:100%!important}
 .backup-title{font-size:14px;font-weight:600;margin-bottom:10px}
 .backup-row{display:flex;gap:8px}
 
+/* Month grouping */
+.month-group{margin-bottom:8px}
+.month-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--soft);border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;color:var(--t1);margin-bottom:4px}
+.month-arrow{font-size:12px;color:var(--t2)}
+
 /* Form helpers */
 .g2-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
 .field-wrap{position:relative}
@@ -1141,31 +1146,72 @@ function statCard(emoji, title, value, unit, colorKey, status, target) {
 }
 
 // ─── Daily Log page ───────────────────────────────────────
+function groupByMonth(items, dateKey) {
+  const groups = {};
+  items.forEach(item => {
+    const ym = item[dateKey].slice(0, 7); // YYYY-MM
+    if (!groups[ym]) groups[ym] = [];
+    groups[ym].push(item);
+  });
+  return Object.entries(groups).sort((a,b) => b[0].localeCompare(a[0]));
+}
+
+function fmtYM(ym) {
+  const [y, m] = ym.split('-');
+  return `${y}年${parseInt(m)}月`;
+}
+
+function isRecentWeek(date) {
+  const d = new Date(date + 'T12:00:00');
+  const now = new Date();
+  return (now - d) <= 7 * 24 * 60 * 60 * 1000;
+}
+
 function renderDaily() {
   const el = document.getElementById('p-daily');
   const sorted = [...getDaily()].sort((a,b)=>b.date.localeCompare(a.date));
   const t = today();
+  const groups = groupByMonth(sorted, 'date');
+
   el.innerHTML = `
     <div class="ph">
       <div class="ph-left"><div class="eyebrow">歷史記錄</div><div class="title">Daily Log</div></div>
       <button class="btn btn-primary btn-sm" onclick="dailyModal(null)">+ 新增</button>
     </div>
     ${sorted.length === 0 ? `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">還沒有任何記錄</div><button class="btn btn-primary" onclick="dailyModal(null)">+ 新增記錄</button></div>` :
-      `<div class="log-list">${sorted.map(log => {
-        const isT = log.date === t;
-        const sc = log.score ?? 0;
-        return `<button class="card-sm log-row${isT?' today-row':''}" onclick='openDailyEdit(${JSON.stringify(log).replace(/'/g,"&#39;")})'>
-          <div style="flex:1">
-            <div class="log-date">${fmtDate(log.date)}${isT?'<span class="today-pill">今天</span>':''}</div>
-            <div class="log-meta">${log.weight?log.weight+'kg':''}${log.sleep?' · 睡 '+log.sleep+'h':''}${log.steps?' · '+(log.steps/1000).toFixed(1)+'k步':''}</div>
+      groups.map(([ym, logs], gi) => {
+        const isLatest = gi === 0;
+        const id = `dg-${ym}`;
+        return `<div class="month-group">
+          <button class="month-header" onclick="toggleMonthGroup('${id}')">
+            <span>${fmtYM(ym)}</span>
+            <span style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:12px;color:var(--t3)">${logs.length} 筆</span>
+              <span class="month-arrow" id="${id}-arrow">${isLatest ? '▾' : '▸'}</span>
+            </span>
+          </button>
+          <div id="${id}" style="${isLatest ? '' : 'display:none'}">
+            <div class="log-list" style="margin-bottom:8px">
+              ${logs.map(log => {
+                const isT = log.date === t;
+                const sc = log.score ?? 0;
+                const inWeek = isRecentWeek(log.date);
+                return `<button class="card-sm log-row${isT?' today-row':''}" onclick='openDailyEdit(${JSON.stringify(log).replace(/'/g,"&#39;")})'>
+                  <div style="flex:1">
+                    <div class="log-date">${fmtDate(log.date)}${isT?'<span class="today-pill">今天</span>':''}${inWeek&&!isT?'<span class="today-pill" style="background:var(--blue)">本週</span>':''}</div>
+                    <div class="log-meta">${log.weight?log.weight+'kg':''}${log.sleep?' · 睡 '+log.sleep+'h':''}${log.steps?' · '+(log.steps/1000).toFixed(1)+'k步':''}</div>
+                  </div>
+                  <div style="display:flex;align-items:baseline;gap:3px">
+                    <span class="log-score" style="color:${scoreColor(sc)}">${sc}</span>
+                    <span style="font-size:12px;color:var(--t3)">分</span>
+                    <span class="log-arrow">›</span>
+                  </div>
+                </button>`;
+              }).join('')}
+            </div>
           </div>
-          <div style="display:flex;align-items:baseline;gap:3px">
-            <span class="log-score" style="color:${scoreColor(sc)}">${sc}</span>
-            <span style="font-size:12px;color:var(--t3)">分</span>
-            <span class="log-arrow">›</span>
-          </div>
-        </button>`;
-      }).join('')}</div>`
+        </div>`;
+      }).join('')
     }
     <div style="height:12px"></div>
     <div class="card-sm backup">
@@ -1181,6 +1227,15 @@ function renderDaily() {
 }
 
 function openDailyEdit(log) { dailyModal(log); }
+
+function toggleMonthGroup(id) {
+  const el = document.getElementById(id);
+  const arrow = document.getElementById(id+'-arrow');
+  if (!el) return;
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : '';
+  if (arrow) arrow.textContent = isOpen ? '▸' : '▾';
+}
 
 function handleImport(input) {
   const file = input.files[0]; if (!file) return;
@@ -1272,26 +1327,46 @@ function renderFoodHistory() {
   const el = document.getElementById('p-food');
   const allDates = [...new Set(getFood().map(f=>f.date))].sort((a,b)=>b.localeCompare(a));
   const t = today();
+  const groups = groupByMonth(allDates.map(d=>({date:d})), 'date');
+
   el.innerHTML = `
     <div class="ph">
       <div class="ph-left"><div class="eyebrow">飲食記錄</div><div class="title">歷史總覽</div></div>
       <button class="btn btn-ghost btn-sm" onclick="foodViewMode='day';renderFood()">← 回今天</button>
     </div>
     ${allDates.length === 0 ? `<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-title">還沒有飲食記錄</div></div>` :
-      `<div class="log-list">${allDates.map(date => {
-        const foods = getFood().filter(f=>f.date===date && f.mealType!=='飲水');
-        const water = getFood().filter(f=>f.date===date && f.mealType==='飲水').reduce((a,f)=>a+(f.amount||0),0);
-        const cal = foods.reduce((a,f)=>a+(f.calories||0),0);
-        const prot = Math.round(foods.reduce((a,f)=>a+(f.protein||0),0)*10)/10;
-        const isT = date === t;
-        return `<button class="card-sm log-row${isT?' today-row':''}" onclick="foodViewMode='day';foodDate='${date}';renderFood()">
-          <div style="flex:1">
-            <div class="log-date">${fmtDate(date)}${isT?'<span class="today-pill">今天</span>':''}</div>
-            <div class="log-meta">${cal}kcal · 蛋白 ${prot}g${water?' · 💧'+water+'ml':''}</div>
+      groups.map(([ym, items], gi) => {
+        const isLatest = gi === 0;
+        const id = `fg-${ym}`;
+        return `<div class="month-group">
+          <button class="month-header" onclick="toggleMonthGroup('${id}')">
+            <span>${fmtYM(ym)}</span>
+            <span style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:12px;color:var(--t3)">${items.length} 天</span>
+              <span class="month-arrow" id="${id}-arrow">${isLatest ? '▾' : '▸'}</span>
+            </span>
+          </button>
+          <div id="${id}" style="${isLatest ? '' : 'display:none'}">
+            <div class="log-list" style="margin-bottom:8px">
+              ${items.map(({date}) => {
+                const foods = getFood().filter(f=>f.date===date && f.mealType!=='飲水');
+                const water = getFood().filter(f=>f.date===date && f.mealType==='飲水').reduce((a,f)=>a+(f.amount||0),0);
+                const cal = foods.reduce((a,f)=>a+(f.calories||0),0);
+                const prot = Math.round(foods.reduce((a,f)=>a+(f.protein||0),0)*10)/10;
+                const isT = date === t;
+                const inWeek = isRecentWeek(date);
+                return `<button class="card-sm log-row${isT?' today-row':''}" onclick="foodViewMode='day';foodDate='${date}';renderFood()">
+                  <div style="flex:1">
+                    <div class="log-date">${fmtDate(date)}${isT?'<span class="today-pill">今天</span>':''}${inWeek&&!isT?'<span class="today-pill" style="background:var(--blue)">本週</span>':''}</div>
+                    <div class="log-meta">${cal}kcal · 蛋白 ${prot}g${water?' · 💧'+water+'ml':''}</div>
+                  </div>
+                  <span class="log-arrow">›</span>
+                </button>`;
+              }).join('')}
+            </div>
           </div>
-          <span class="log-arrow">›</span>
-        </button>`;
-      }).join('')}</div>`
+        </div>`;
+      }).join('')
     }
     <div style="height:16px"></div>
   `;
