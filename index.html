@@ -199,6 +199,9 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .td-up{color:var(--red);background:var(--red-s)}
 .td-dn{color:var(--green);background:var(--green-s)}
 .trend-empty{font-size:13px;color:var(--t3);padding:20px 0;text-align:center}
+.trend-range-bar{display:flex;gap:8px;margin-bottom:14px}
+.trend-range-btn{flex:1;padding:8px 0;border-radius:99px;font-size:13px;font-weight:500;background:var(--soft);border:1.5px solid var(--border);color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s}
+.trend-range-btn.on{background:var(--t1);color:#fff;border-color:var(--t1)}
 canvas{width:100%!important}
 
 /* Backup */
@@ -1374,6 +1377,8 @@ function renderFoodHistory() {
 
 // ─── Trends ───────────────────────────────────────────────
 let trendCharts = {};
+let trendRange = 14; // 預設近 2 週
+
 function renderTrends() {
   const el = document.getElementById('p-trends');
   const metrics = [
@@ -1386,13 +1391,17 @@ function renderTrends() {
     {key:'score',label:'今日分數',emoji:'🏆',unit:'分',color:'#e06060',ref:null},
   ];
 
-  // destroy old
   Object.values(trendCharts).forEach(c => c.destroy());
   trendCharts = {};
+
+  const ranges = [{label:'近2週',days:14},{label:'近1月',days:30},{label:'近3月',days:90},{label:'全部',days:0}];
 
   el.innerHTML = `
     <div class="ph" style="padding-bottom:4px">
       <div class="ph-left"><div class="eyebrow">數據趨勢</div><div class="title">Trends</div></div>
+    </div>
+    <div class="trend-range-bar">
+      ${ranges.map(r=>`<button class="trend-range-btn${trendRange===r.days?' on':''}" onclick="setTrendRange(${r.days})">${r.label}</button>`).join('')}
     </div>
     ${metrics.map(m=>`<div class="card trend-card" id="tc-${m.key}">
       <div class="trend-head">
@@ -1404,12 +1413,19 @@ function renderTrends() {
     <div style="height:16px"></div>
   `;
 
-  const logs = [...getDaily()].sort((a,b)=>a.date.localeCompare(b.date));
+  // 過濾時間範圍
+  const allLogs = [...getDaily()].sort((a,b)=>a.date.localeCompare(b.date));
+  const cutoff = trendRange > 0 ? daysAgo(trendRange) : null;
+  const logs = cutoff ? allLogs.filter(l => l.date >= cutoff) : allLogs;
 
   metrics.forEach(m => {
     const data = logs.filter(l=>l[m.key]!=null&&l[m.key]!==0).map(l=>({x:fmtDate(l.date),y:l[m.key]}));
     const valEl = document.getElementById(`tv-${m.key}`);
-    if (data.length < 2) { document.getElementById(`tc-${m.key}`).querySelector('canvas').style.display='none'; valEl.innerHTML='<span style="font-size:13px;color:var(--t3)">資料不足</span>'; return; }
+    if (data.length < 2) {
+      document.getElementById(`tc-${m.key}`).querySelector('canvas').style.display='none';
+      valEl.innerHTML='<span style="font-size:13px;color:var(--t3)">資料不足</span>';
+      return;
+    }
     const latest = data[data.length-1].y;
     const prev = data[data.length-2].y;
     const diff = latest - prev;
@@ -1428,6 +1444,11 @@ function renderTrends() {
         scales:{ x:{ticks:{font:{size:10},color:'#b0a89e'},grid:{display:false}}, y:{ticks:{font:{size:10},color:'#b0a89e'},grid:{color:'#e8e3db'}} } }
     });
   });
+}
+
+function setTrendRange(days) {
+  trendRange = days;
+  renderTrends();
 }
 
 // ─── Routing ──────────────────────────────────────────────
