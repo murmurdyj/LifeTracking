@@ -204,6 +204,86 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .trend-range-btn.on{background:var(--t1);color:#fff;border-color:var(--t1)}
 canvas{width:100%!important}
 
+/* Plan page */
+.plan-phase-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.plan-phase-tabs::-webkit-scrollbar{display:none}
+.plan-phase-tab{white-space:nowrap;padding:7px 14px;border-radius:99px;font-size:13px;font-weight:500;background:var(--card);border:1.5px solid var(--border);color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0}
+.plan-phase-tab.on{background:var(--t1);color:#fff;border-color:var(--t1)}
+.plan-section{margin-bottom:18px}
+.plan-day-card{background:var(--card);border-radius:16px;border:1px solid var(--border);overflow:hidden;margin-bottom:8px}
+.plan-day-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.plan-day-title{font-size:13px;font-weight:600;flex:1}
+.plan-day-time{font-size:11px;color:var(--t3)}
+.plan-tag{font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px}
+.plan-tag-s{background:var(--purple-s);color:var(--purple)}
+.plan-tag-c{background:var(--green-s);color:var(--green)}
+.plan-tag-r{background:var(--soft);color:var(--t3);border:1px solid var(--border)}
+.plan-day-body{padding:10px 14px}
+.plan-ex{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.plan-ex-dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:6px}
+.plan-ex-dot-p{background:var(--purple)}
+.plan-ex-name{font-size:13px;flex:1}
+.plan-ex-count{font-size:12px;color:var(--t2);font-weight:500;white-space:nowrap}
+.plan-ex-tip{font-size:11px;color:var(--t3);line-height:1.5;padding-left:13px;margin-top:-2px;margin-bottom:4px}
+.plan-rest-text{font-size:13px;color:var(--t2);line-height:1.6}
+.plan-food-row{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border)}
+.plan-food-row:last-child{border-bottom:none}
+.plan-food-meal{font-size:12px;font-weight:600;color:var(--t3);min-width:38px}
+.plan-food-name{font-size:13px;font-weight:500;flex:1;margin:0 8px}
+.plan-food-desc{font-size:11px;color:var(--t3);margin-top:2px}
+.plan-food-prot{font-size:12px;font-weight:600;color:var(--green);white-space:nowrap}
+.plan-tip-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.plan-tip-card{background:var(--soft);border-radius:14px;padding:11px 12px}
+.plan-tip-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.plan-tip-desc{font-size:11px;color:var(--t2);line-height:1.5}
+.plan-sleep-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+.plan-sleep-time{font-size:11px;color:var(--t3);min-width:40px;padding-top:11px;font-weight:500}
+.plan-sleep-card{background:var(--soft);border-radius:12px;padding:9px 12px;flex:1}
+.plan-sleep-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.plan-sleep-desc{font-size:11px;color:var(--t2);line-height:1.5}
+.plan-do-dont{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.plan-do{background:var(--green-s);border:1px solid #9FE1CB;border-radius:14px;padding:11px 12px}
+.plan-dont{background:var(--red-s);border:1px solid #F09595;border-radius:14px;padding:11px 12px}
+.plan-do .pdh{font-size:12px;font-weight:600;color:#085041;margin-bottom:6px}
+.plan-dont .pdh{font-size:12px;font-weight:600;color:#791F1F;margin-bottom:6px}
+.plan-do li{font-size:12px;color:#085041;line-height:1.7}
+.plan-dont li{font-size:12px;color:#791F1F;line-height:1.7}
+.plan-info-box{border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.plan-checklist{display:flex;flex-direction:column;gap:6px}
+.plan-check-item{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;border:1px solid var(--border);padding:11px 13px;cursor:pointer;transition:background .1s}
+.plan-check-item.done{background:var(--green-s);border-color:#9FE1CB}
+.plan-check-item:active{background:var(--soft)}
+.plan-check-box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;transition:all .15s}
+.plan-check-item.done .plan-check-box{background:var(--green);border-color:var(--green);color:#fff}
+.plan-check-label{font-size:13px;flex:1}
+.plan-check-item.done .plan-check-label{color:var(--t3);text-decoration:line-through}
+.plan-progress-wrap{height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:4px}
+.plan-progress-bar{height:100%;background:var(--green);border-radius:99px;transition:width .4s}
+.plan-env-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.plan-env-card{background:var(--soft);border-radius:12px;padding:10px}
+.plan-env-title{font-size:12px;font-weight:600;margin-bottom:4px}
+.plan-env-val{font-size:11px;color:var(--t2);line-height:1.5}
+.plan-target-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.plan-target-card{background:var(--soft);border-radius:14px;padding:12px}
+.plan-target-label{font-size:11px;color:var(--t2);margin-bottom:3px}
+.plan-target-val{font-size:18px;font-weight:700}
+.plan-target-note{font-size:10px;color:var(--t3);margin-top:2px}
+.plan-phase-banner{background:var(--soft);border-radius:14px;padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.plan-phase-name{font-size:13px;font-weight:600}
+.plan-phase-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.plan-phase-time{font-size:12px;color:var(--t3)}
+.plan-food-table{width:100%;border-collapse:collapse;font-size:12px}
+.plan-food-table th{font-weight:600;text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--t2);font-size:11px}
+.plan-food-table td{padding:8px 8px;border-bottom:1px solid var(--border);color:var(--t1)}
+.plan-food-table tr:last-child td{border-bottom:none}
+.plan-bar-mini{display:flex;align-items:center;gap:6px}
+.plan-bar-track{width:50px;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.plan-bar-fill{height:100%;border-radius:99px;background:var(--green)}
+.plan-stress-box{background:var(--purple-s);border:1px solid #AFA9EC;border-radius:14px;padding:13px;margin-bottom:8px}
+.plan-stress-title{font-size:12px;font-weight:600;color:var(--purple);margin-bottom:8px}
+.plan-stress-item{font-size:12px;color:#534AB7;line-height:1.6;margin-bottom:4px}
+.plan-warn{background:var(--yellow-s);border:1px solid #EF9F27;border-radius:12px;padding:11px 13px;font-size:12px;color:#633806;line-height:1.6;margin-bottom:8px}
+
 /* Backup */
 .backup{margin-top:4px}
 .backup-title{font-size:14px;font-weight:600;margin-bottom:10px}
@@ -267,6 +347,7 @@ canvas{width:100%!important}
   <div class="page" id="p-daily"></div>
   <div class="page" id="p-food"></div>
   <div class="page" id="p-trends"></div>
+  <div class="page" id="p-plan"></div>
 
   <!-- Tab bar -->
   <nav class="tabbar">
@@ -274,6 +355,7 @@ canvas{width:100%!important}
     <button class="tab" data-tab="daily"><span class="tab-icon">📋</span><span class="tab-label">日記錄</span></button>
     <button class="tab" data-tab="food"><span class="tab-icon">🍽️</span><span class="tab-label">飲食</span></button>
     <button class="tab" data-tab="trends"><span class="tab-icon">📈</span><span class="tab-label">趨勢</span></button>
+    <button class="tab" data-tab="plan"><span class="tab-icon">🎯</span><span class="tab-label">計畫</span></button>
   </nav>
 </div>
 
@@ -1453,6 +1535,385 @@ function setTrendRange(days) {
 
 // ─── Routing ──────────────────────────────────────────────
 let currentTab = 'dashboard';
+// ─── Plan page ────────────────────────────────────────────
+const PLAN_CHECK_KEY = 'lt2_plan_checks';
+function getPlanChecks() { try { return JSON.parse(localStorage.getItem(PLAN_CHECK_KEY)) || {}; } catch { return {}; } }
+function savePlanChecks(obj) { localStorage.setItem(PLAN_CHECK_KEY, JSON.stringify(obj)); }
+
+function togglePlanCheck(id) {
+  const checks = getPlanChecks();
+  const key = today() + '_' + id;
+  checks[key] = !checks[key];
+  savePlanChecks(checks);
+  renderPlan();
+}
+
+function isPlanChecked(id) {
+  const checks = getPlanChecks();
+  return !!checks[today() + '_' + id];
+}
+
+let planTab = 'overview';
+
+function renderPlan() {
+  const el = document.getElementById('p-plan');
+  const tabs = [
+    {id:'overview', label:'總覽'},
+    {id:'workout', label:'運動計畫'},
+    {id:'diet', label:'飲食指南'},
+    {id:'sleep', label:'睡眠改善'},
+    {id:'checklist', label:'今日打卡'},
+  ];
+
+  const tabBar = `<div class="plan-phase-tabs">${tabs.map(t=>`<button class="plan-phase-tab${planTab===t.id?' on':''}" onclick="planTab='${t.id}';renderPlan()">${t.label}</button>`).join('')}</div>`;
+
+  let content = '';
+
+  if (planTab === 'overview') {
+    content = `
+      <div class="sec">三階段計畫</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        <div class="card-sm" style="border-left:3px solid var(--blue)">
+          <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:3px">第 1 階段 · 第 1–4 週</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px">建立基礎</div>
+          <div style="font-size:12px;color:var(--t2)">修復睡眠、穩定飲食、從輕鬆步行開始</div>
+        </div>
+        <div class="card-sm" style="border-left:3px solid var(--green)">
+          <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:3px">第 2 階段 · 第 5–12 週</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px">啟動燃脂</div>
+          <div style="font-size:12px;color:var(--t2)">加入阻力訓練，調整蛋白質，溫和熱量赤字</div>
+        </div>
+        <div class="card-sm" style="border-left:3px solid var(--purple)">
+          <div style="font-size:11px;font-weight:600;color:var(--purple);margin-bottom:3px">第 3 階段 · 第 13 週起</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px">持續優化</div>
+          <div style="font-size:12px;color:var(--t2)">體脂下降後調整強度，鞏固肌肉，維持習慣</div>
+        </div>
+      </div>
+
+      <div class="sec">每日核心目標</div>
+      <div class="plan-target-grid">
+        <div class="plan-target-card">
+          <div class="plan-target-label">每日熱量</div>
+          <div class="plan-target-val">1,550–1,700</div>
+          <div class="plan-target-note">kcal · 溫和熱量赤字</div>
+        </div>
+        <div class="plan-target-card">
+          <div class="plan-target-label">每日蛋白質</div>
+          <div class="plan-target-val">100–120</div>
+          <div class="plan-target-note">g · 體重×1.2–1.5g</div>
+        </div>
+        <div class="plan-target-card">
+          <div class="plan-target-label">每日步數</div>
+          <div class="plan-target-val">8,000–10,000</div>
+          <div class="plan-target-note">步 · 分散在三餐後</div>
+        </div>
+        <div class="plan-target-card">
+          <div class="plan-target-label">每晚睡眠</div>
+          <div class="plan-target-val">7–8</div>
+          <div class="plan-target-note">小時 · 最晚 11pm 前</div>
+        </div>
+      </div>
+
+      <div class="sec">本週最重要三件事</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+        <div class="card-sm" style="display:flex;gap:10px;align-items:flex-start;background:var(--red-s)">
+          <div style="min-width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px">1</div>
+          <div><div style="font-size:13px;font-weight:600;margin-bottom:2px;color:var(--red)">優先修復睡眠（最關鍵）</div><div style="font-size:12px;color:var(--t2);line-height:1.5">設定固定就寢時間，睡前 1 小時關螢幕。睡眠不足讓皮質醇升高，直接阻礙燃脂。</div></div>
+        </div>
+        <div class="card-sm" style="display:flex;gap:10px;align-items:flex-start;background:var(--yellow-s)">
+          <div style="min-width:22px;height:22px;border-radius:50%;background:var(--yellow);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px">2</div>
+          <div><div style="font-size:13px;font-weight:600;margin-bottom:2px;color:var(--yellow)">每餐加入蛋白質來源</div><div style="font-size:12px;color:var(--t2);line-height:1.5">雞蛋、雞胸肉、豆腐、無糖豆漿、希臘優格，目標每餐 25–35g。</div></div>
+        </div>
+        <div class="card-sm" style="display:flex;gap:10px;align-items:flex-start;background:var(--green-s)">
+          <div style="min-width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px">3</div>
+          <div><div style="font-size:13px;font-weight:600;margin-bottom:2px;color:var(--green)">每天 15 分鐘輕鬆活動</div><div style="font-size:12px;color:var(--t2);line-height:1.5">先從飯後散步或伸展開始，建立「有動比沒動好」的習慣。</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  else if (planTab === 'workout') {
+    let workoutPhase = (typeof window._workoutPhase === 'undefined') ? 1 : window._workoutPhase;
+    const phaseTabs = [
+      {id:1,label:'第 1–2 週'},
+      {id:2,label:'第 3–4 週'},
+      {id:3,label:'第 5–8 週'},
+    ];
+    const phases = {
+      1: { name:'入門期', sub:'先讓身體習慣動起來', time:'每次 12–15 分鐘',
+        days:[
+          {day:'週一',type:'s',label:'下半身啟動',time:'15分',exs:[
+            {name:'深蹲（椅子輔助）',count:'3 × 10 下',tip:'屁股碰到椅面即站起，膝蓋不超過腳尖',p:true},
+            {name:'弓箭步（靜態）',count:'每腳 2 × 8 下',tip:'後膝輕觸地板，速度放慢感受大腿發力',p:true},
+            {name:'臀橋',count:'3 × 12 下',tip:'頂端停留 2 秒，久坐族臀肌特別需要啟動',p:true},
+          ]},
+          {day:'週二',type:'c',label:'原地有氧',time:'12分',exs:[
+            {name:'原地高抬腿',count:'30秒 × 4 組',tip:'膝蓋抬到腰部高度，組間休息 30 秒'},
+            {name:'開合跳（低衝擊版）',count:'30秒 × 4 組',tip:'腳不離地的側踏版，適合樓上住戶'},
+          ]},
+          {day:'週三',type:'r',label:'主動休息',time:'10分',rest:'貓牛式 × 10 次、髖屈肌伸展各腳 30 秒 × 2、肩頸繞圈 10 次。放鬆比訓練更重要，不要跳過。'},
+          {day:'週四',type:'s',label:'上半身啟動',time:'15分',exs:[
+            {name:'跪姿伏地挺身',count:'3 × 8 下',tip:'核心收緊，身體像一條線',p:true},
+            {name:'椅子撐體（三頭）',count:'3 × 8 下',tip:'感受手臂後側發力',p:true},
+            {name:'平板支撐',count:'3 × 20 秒',tip:'先從 20 秒開始，核心收緊不塌腰',p:true},
+          ]},
+          {day:'週五',type:'c',label:'全身循環',time:'15分',exs:[
+            {name:'深蹲 → 原地踏步 → 深蹲循環',count:'3 輪',tip:'每個動作 30 秒，輪間休息 30 秒'},
+            {name:'臀橋 + 高抬腿收尾',count:'各 1 組',tip:''},
+          ]},
+          {day:'週六',type:'r',label:'戶外散步',time:'30分',rest:'目標 5,000 步以上的輕鬆步行，不計速度。曬太陽幫助睡眠節律穩定。'},
+          {day:'週日',type:'r',label:'完全休息',time:'—',rest:'充分睡眠 + 補充蛋白質，讓肌肉有時間修復生長。'},
+        ]},
+      2: { name:'適應期', sub:'增加組數與強度', time:'每次 15–18 分鐘',
+        days:[
+          {day:'週一',type:'s',label:'下半身強化',time:'18分',exs:[
+            {name:'標準深蹲（不靠椅）',count:'4 × 12 下',tip:'',p:true},
+            {name:'側弓箭步',count:'每腳 3 × 10 下',tip:'',p:true},
+            {name:'單腳臀橋',count:'每腳 3 × 10 下',tip:'單腳版更有效，感受臀肌明顯發力',p:true},
+          ]},
+          {day:'週二',type:'c',label:'HIIT 入門',time:'16分',exs:[
+            {name:'40 秒動作 / 20 秒休息',count:'4 動作 × 4 輪',tip:'高抬腿 → 深蹲跳 → 伏地挺身 → 登山式'},
+          ]},
+          {day:'週三',type:'r',label:'伸展 + 核心',time:'12分',rest:'平板支撐 3 × 30 秒、死蟲式 3 × 10 下、全身伸展。核心穩定是所有動作的基礎。'},
+          {day:'週四',type:'s',label:'上半身強化',time:'18分',exs:[
+            {name:'標準伏地挺身',count:'4 × 8–10 下',tip:'',p:true},
+            {name:'寬距伏地挺身',count:'3 × 8 下',tip:'手比肩更寬，訓練胸肌外側',p:true},
+            {name:'椅子撐體',count:'4 × 10 下',tip:'',p:true},
+          ]},
+          {day:'週五',type:'c',label:'全身燃脂循環',time:'18分',exs:[
+            {name:'5 個動作循環，重複 3 輪',count:'每輪約 5 分鐘',tip:'深蹲 → 伏地挺身 → 臀橋 → 登山式 → 高抬腿'},
+          ]},
+          {day:'週六',type:'r',label:'戶外步行',time:'30–45分',rest:'目標 7,000 步，可加快步速挑戰心肺。'},
+          {day:'週日',type:'r',label:'完全休息',time:'—',rest:'充分休息與蛋白質補充，讓肌肉修復生長。'},
+        ]},
+      3: { name:'進階期', sub:'減脂增肌同步推進', time:'每次 18–20 分鐘',
+        days:[
+          {day:'週一',type:'s',label:'下半身爆發',time:'20分',exs:[
+            {name:'保加利亞分腿蹲',count:'每腳 4 × 10 下',tip:'後腳放椅上，最有效的下半身動作之一',p:true},
+            {name:'深蹲到地撐',count:'3 × 12 下',tip:'',p:true},
+            {name:'單腳臀橋',count:'每腳 4 × 12 下',tip:'',p:true},
+          ]},
+          {day:'週二',type:'c',label:'進階 HIIT',time:'20分',exs:[
+            {name:'Tabata：20 秒全力 / 10 秒休息',count:'8 輪 × 2 組',tip:'第一組深蹲跳，第二組伏地挺身 + 登山式交替'},
+          ]},
+          {day:'週三',type:'r',label:'核心專項',time:'15分',rest:'平板支撐 4 × 45 秒、側平板各 3 × 30 秒、死蟲式 4 × 12 下、全身伸展收尾。'},
+          {day:'週四',type:'s',label:'上半身進階',time:'20分',exs:[
+            {name:'窄距伏地挺身（三頭）',count:'4 × 10 下',tip:'',p:true},
+            {name:'Pike 伏地挺身（肩）',count:'3 × 10 下',tip:'屁股抬高成倒 V，垂直下壓訓練肩膀',p:true},
+            {name:'慢速椅撐（3秒下降）',count:'4 × 8 下',tip:'',p:true},
+          ]},
+          {day:'週五',type:'c',label:'全身複合訓練',time:'20分',exs:[
+            {name:'波比跳（低衝擊版）',count:'4 × 30 秒',tip:''},
+            {name:'深蹲 + 伏地挺身超級組',count:'3 輪，組間休息 45 秒',tip:''},
+          ]},
+          {day:'週六',type:'r',label:'快走或慢跑',time:'30–40分',rest:'目標 8,000 步以上，嘗試快走 5 分鐘、慢跑 2 分鐘交替的間歇步行。'},
+          {day:'週日',type:'r',label:'完全休息',time:'—',rest:'完全休息讓身體超量補償，這是肌肉真正生長的時間。'},
+        ]},
+    };
+    const ph = phases[workoutPhase];
+
+    content = `
+      <div style="display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none">
+        ${phaseTabs.map(t=>`<button style="white-space:nowrap;padding:6px 13px;border-radius:99px;font-size:12px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;font-family:inherit;background:${workoutPhase===t.id?'var(--t1)':'var(--card)'};color:${workoutPhase===t.id?'#fff':'var(--t2)'}" onclick="window._workoutPhase=${t.id};renderPlan()">${t.label}</button>`).join('')}
+      </div>
+      <div class="plan-phase-banner">
+        <div><div class="plan-phase-name">${ph.name}｜${ph.sub}</div></div>
+        <div class="plan-phase-time">${ph.time}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        ${ph.days.map(d=>`
+          <div class="plan-day-card">
+            <div class="plan-day-head">
+              <span class="plan-tag ${d.type==='s'?'plan-tag-s':d.type==='c'?'plan-tag-c':'plan-tag-r'}">${d.type==='s'?'肌力':d.type==='c'?'有氧':'休息'}</span>
+              <span class="plan-day-title">${d.day} · ${d.label}</span>
+              <span class="plan-day-time">${d.time}</span>
+            </div>
+            <div class="plan-day-body">
+              ${d.rest ? `<div class="plan-rest-text">${d.rest}</div>` :
+                d.exs.map(e=>`
+                  <div class="plan-ex">
+                    <div class="plan-ex-dot${e.p?' plan-ex-dot-p':''}"></div>
+                    <span class="plan-ex-name">${e.name}</span>
+                    <span class="plan-ex-count">${e.count}</span>
+                  </div>
+                  ${e.tip ? `<div class="plan-ex-tip">${e.tip}</div>` : ''}
+                `).join('')}
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="plan-warn">久坐族注意：每次訓練前先做 2 分鐘臀橋暖身，幫助大腦重新找到臀肌的發力感，避免深蹲時膝蓋代償。</div>
+      <div class="sec" style="margin-top:4px">辦公室微運動（每小時一次）</div>
+      <div class="plan-tip-grid">
+        <div class="plan-tip-card"><div class="plan-tip-title">站立深蹲 20 下</div><div class="plan-tip-desc">對抗久坐造成的臀肌失活</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">踮腳尖 30 下</div><div class="plan-tip-desc">刺激小腿肌肉與血液循環</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">頸部側伸展</div><div class="plan-tip-desc">改善久坐肩頸緊繃</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">起身走動</div><div class="plan-tip-desc">打破靜止狀態即有效</div></div>
+      </div>
+    `;
+  }
+
+  else if (planTab === 'diet') {
+    content = `
+      <div class="sec">高蛋白食物速查</div>
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+        <table class="plan-food-table">
+          <thead><tr><th>食物</th><th>份量</th><th>蛋白質</th><th>備註</th></tr></thead>
+          <tbody>
+            ${[
+              {n:'雞蛋',a:'2顆',p:12,w:12,note:'水煮免顧'},
+              {n:'雞胸肉',a:'100g',p:25,w:83,note:'超市即食包'},
+              {n:'無糖豆漿',a:'500ml',p:18,w:60,note:'早餐最快補'},
+              {n:'希臘優格',a:'150g',p:15,w:50,note:'選無糖款'},
+              {n:'板豆腐',a:'150g',p:13,w:43,note:'最便宜植物蛋白'},
+              {n:'鮪魚罐頭',a:'1罐150g',p:33,w:100,note:'開罐即食'},
+              {n:'毛豆',a:'100g',p:11,w:37,note:'冷凍包微波3分鐘'},
+              {n:'茶葉蛋',a:'2顆',p:14,w:47,note:'便利商店隨手買'},
+            ].map(f=>`<tr>
+              <td style="font-weight:500">${f.n}</td>
+              <td style="color:var(--t2)">${f.a}</td>
+              <td><div class="plan-bar-mini"><div class="plan-bar-track"><div class="plan-bar-fill" style="width:${f.w}%"></div></div>${f.p}g</div></td>
+              <td style="color:var(--t3);font-size:11px">${f.note}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sec">懶人一日三餐示範（合計 100g+）</div>
+      <div class="card" style="margin-bottom:12px">
+        ${[
+          {meal:'早餐',name:'無糖豆漿 + 水煮蛋 2 顆',desc:'500ml 豆漿 + 前一晚預煮，5 分鐘搞定',prot:'30g'},
+          {meal:'午餐',name:'便利商店策略',desc:'茶葉蛋 2 顆 + 雞胸便當（減半白飯）',prot:'35g'},
+          {meal:'點心',name:'希臘優格 150g（無糖）',desc:'飽足感高，避免晚餐過量',prot:'15g'},
+          {meal:'晚餐',name:'板豆腐 + 蔬菜 + 少量飯',desc:'豆腐切塊加醬油蒸熟，搭配冷凍蔬菜包',prot:'20g'},
+        ].map(r=>`<div class="plan-food-row">
+          <div class="plan-food-meal">${r.meal}</div>
+          <div style="flex:1;margin:0 8px"><div class="plan-food-name" style="margin:0">${r.name}</div><div class="plan-food-desc">${r.desc}</div></div>
+          <div class="plan-food-prot">${r.prot}</div>
+        </div>`).join('')}
+        <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--t2)">合計蛋白質</div>
+          <div style="font-size:14px;font-weight:700;color:var(--green)">100g ✓</div>
+        </div>
+      </div>
+
+      <div class="sec">外食點餐原則</div>
+      <div class="plan-tip-grid" style="margin-bottom:12px">
+        <div class="plan-tip-card"><div class="plan-tip-title">飯減半</div><div class="plan-tip-desc">多加一個蛋或豆腐，不需特別找健康餐廳</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">週日備餐 30 分鐘</div><div class="plan-tip-desc">煮 10 顆水煮蛋、滷豆腐，放冰箱用 4–5 天</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">下午 2 點後停咖啡因</div><div class="plan-tip-desc">半衰期 5–7 小時，晚上仍有殘留</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">喝的蛋白質</div><div class="plan-tip-desc">一天兩瓶無糖豆漿 = 36g，完全不需料理</div></div>
+      </div>
+
+      <div class="plan-warn">蛋白質要分散在三餐攝取，每餐 25–35g 的效果遠比一餐吃 80g 更好。身體單次能用於肌肉合成的蛋白質有上限。</div>
+    `;
+  }
+
+  else if (planTab === 'sleep') {
+    content = `
+      <div class="sec">睡前 2 小時黃金作息</div>
+      <div style="margin-bottom:14px">
+        ${[
+          {time:'9pm',title:'燈光調暗 + 停止工作',desc:'關掉電腦，將室內燈換成暖色光。藍光抑制褪黑激素分泌。'},
+          {time:'9:15',title:'溫水淋浴 10 分鐘',desc:'38–40°C 溫水浴後體溫快速下降，平均縮短入睡時間 10–15 分鐘。'},
+          {time:'9:30',title:'手機放到房間外',desc:'切換飛航模式或放到臥室外充電，通知聲讓大腦持續保持警覺狀態。'},
+          {time:'9:40',title:'10 分鐘放鬆活動',desc:'輕鬆閱讀紙本書、緩慢伸展、寫隔天待辦清單（把明天的事卸載出腦袋）。'},
+          {time:'10pm',title:'上床，固定時間',desc:'就算睡不著也在 10–10:30pm 躺下。大腦靠固定時間信號建立睡眠節律。'},
+        ].map(s=>`<div class="plan-sleep-item">
+          <div class="plan-sleep-time">${s.time}</div>
+          <div class="plan-sleep-card">
+            <div class="plan-sleep-title">${s.title}</div>
+            <div class="plan-sleep-desc">${s.desc}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+
+      <div class="sec">臥室環境調整</div>
+      <div class="plan-env-grid">
+        <div class="plan-env-card"><div class="plan-env-title">溫度</div><div class="plan-env-val">18–22°C 最佳，偏涼促進深層睡眠</div></div>
+        <div class="plan-env-card"><div class="plan-env-title">光線</div><div class="plan-env-val">全黑或遮光窗簾，黎明光線提前喚醒皮質醇</div></div>
+        <div class="plan-env-card"><div class="plan-env-title">噪音</div><div class="plan-env-val">白噪音或雨聲遮蔽干擾聲</div></div>
+        <div class="plan-env-card"><div class="plan-env-title">床的用途</div><div class="plan-env-val">床只用來睡覺，強化連結</div></div>
+        <div class="plan-env-card"><div class="plan-env-title">鬧鐘距離</div><div class="plan-env-val">放遠一點，避免半夜看時間</div></div>
+        <div class="plan-env-card"><div class="plan-env-title">枕頭</div><div class="plan-env-val">頸部支撐不足導致淺眠</div></div>
+      </div>
+
+      <div class="sec">睡得好 vs. 睡不好</div>
+      <div class="plan-do-dont" style="margin-bottom:12px">
+        <div class="plan-do">
+          <div class="pdh">有助睡眠</div>
+          <ul style="padding-left:14px;margin:0">
+            ${['固定起床時間（含假日）','白天曬 15 分鐘陽光','下午後不喝咖啡因','睡前寫出明天待辦','規律輕度運動'].map(t=>`<li class="plan-do" style="background:none;border:none;padding:0">${t}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="plan-dont">
+          <div class="pdh">破壞睡眠</div>
+          <ul style="padding-left:14px;margin:0">
+            ${['睡前滑手機','睡前飲酒（讓睡眠變淺）','補眠超過 90 分鐘','晚上劇烈運動','週末睡到中午'].map(t=>`<li class="plan-dont" style="background:none;border:none;padding:0">${t}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+
+      <div class="plan-stress-box">
+        <div class="plan-stress-title">壓力大時：讓大腦真正關機的三個方法</div>
+        <div class="plan-stress-item">① 「擔憂清單」法：睡前把腦中煩惱寫下來，後面加一句「明天再處理」</div>
+        <div class="plan-stress-item">② 4-7-8 呼吸法：吸氣 4 秒 → 屏氣 7 秒 → 吐氣 8 秒，重複 4 次</div>
+        <div class="plan-stress-item">③ 身體掃描：從腳趾開始逐步放鬆每個部位，讓大腦有事做</div>
+      </div>
+
+      <div class="plan-tip-grid">
+        <div class="plan-tip-card"><div class="plan-tip-title">白天小睡最多 20 分鐘</div><div class="plan-tip-desc">超過會進入深層睡眠，醒來更累。需在下午 3 點前完成。</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">睡不著就起床</div><div class="plan-tip-desc">在床上硬撐只會強化「床＝焦慮」的連結，20 分鐘睡不著就離開。</div></div>
+      </div>
+    `;
+  }
+
+  else if (planTab === 'checklist') {
+    const checks = [
+      {id:'sleep7',label:'昨晚睡滿 7 小時'},
+      {id:'protein',label:'蛋白質達到 100g'},
+      {id:'cal',label:'熱量在 1,550–1,700 kcal'},
+      {id:'steps',label:'步數達到 8,000 步'},
+      {id:'water',label:'飲水 2,500ml 以上'},
+      {id:'phone',label:'睡前手機放到房間外'},
+      {id:'workout',label:'完成今日運動計畫'},
+      {id:'nosnack',label:'沒有吃宵夜'},
+      {id:'stress',label:'壓力 ≤ 3 分'},
+      {id:'veggie',label:'蔬菜至少 2 份'},
+    ];
+    const done = checks.filter(c => isPlanChecked(c.id)).length;
+    const pct = Math.round((done / checks.length) * 100);
+    content = `
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <div style="font-size:14px;font-weight:600">今日完成度</div>
+          <div style="font-size:22px;font-weight:700;color:${pct>=80?'var(--green)':pct>=50?'var(--yellow)':'var(--red)'}">${done}<span style="font-size:13px;font-weight:400;color:var(--t3)"> / ${checks.length}</span></div>
+        </div>
+        <div class="plan-progress-wrap"><div class="plan-progress-bar" style="width:${pct}%"></div></div>
+        <div style="font-size:12px;color:var(--t3);margin-top:4px">${pct >= 80 ? '🌟 今天表現優秀！' : pct >= 50 ? '👍 不錯，繼續加油！' : '💪 還有進步空間，加油！'}</div>
+      </div>
+      <div class="plan-checklist">
+        ${checks.map(c => {
+          const checked = isPlanChecked(c.id);
+          return `<div class="plan-check-item${checked?' done':''}" onclick="togglePlanCheck('${c.id}')">
+            <div class="plan-check-box">${checked ? '✓' : ''}</div>
+            <span class="plan-check-label">${c.label}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:14px;font-size:12px;color:var(--t3);text-align:center">打卡記錄每天重置，請每天記得來打卡！</div>
+    `;
+  }
+
+  el.innerHTML = `
+    <div class="ph">
+      <div class="ph-left"><div class="eyebrow">健康計畫</div><div class="title">My Plan</div></div>
+    </div>
+    ${tabBar}
+    ${content}
+    <div style="height:16px"></div>
+  `;
+}
+
 function renderAll() {
   renderDashboard();
   renderDaily();
@@ -1464,6 +1925,7 @@ function switchTab(tab) {
   document.getElementById('p-'+tab).classList.add('active');
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===tab));
   if (tab === 'trends') renderTrends();
+  if (tab === 'plan') renderPlan();
 }
 
 document.querySelectorAll('.tab').forEach(t => {
