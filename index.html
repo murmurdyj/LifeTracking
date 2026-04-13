@@ -289,14 +289,15 @@ canvas{width:100%!important}
 .workout-check-row:last-child{border-bottom:none}
 .workout-check-label{flex:1;font-size:13px;font-weight:500}
 .workout-check-weeks{display:flex;gap:6px}
-.wk-box{width:36px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--soft);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--t3);transition:all .15s;font-family:inherit}
+.wk-box{width:44px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--soft);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--t3);transition:all .15s;font-family:inherit}
 .wk-box.done{background:var(--green);border-color:var(--green);color:#fff}
 
 /* Achievements */
 .achieve-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
 .achieve-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:14px 10px;text-align:center;transition:all .15s}
 .achieve-card.unlocked{border-color:var(--yellow);background:var(--yellow-s)}
-.achieve-card.locked{opacity:0.45}
+.achieve-card.locked{background:var(--soft)}
+.achieve-card.locked img{display:none}
 .achieve-emoji{font-size:32px;margin-bottom:6px;line-height:1}
 .achieve-name{font-size:12px;font-weight:600;color:var(--t1);line-height:1.3}
 .achieve-desc{font-size:10px;color:var(--t2);margin-top:3px;line-height:1.4}
@@ -1723,6 +1724,14 @@ function toggleWorkoutCheck(phase, day) {
   renderPlan();
 }
 function isWorkoutChecked(phase, day) { return !!getWorkoutChecks()[`${phase}_${day}`]; }
+
+function renderWkBox(phase, day, week) {
+  const key = day + '_w' + week;
+  const done = isWorkoutChecked(phase, key);
+  const cls = 'wk-box' + (done ? ' done' : '');
+  const label = done ? '✓' : '第' + week + '週';
+  return `<button class="${cls}" onclick="toggleWorkoutCheck(${phase},'${key}')">${label}</button>`;
+}
 const PLAN_CHECK_KEY = 'lt2_plan_checks';
 function getPlanChecks() { try { return JSON.parse(localStorage.getItem(PLAN_CHECK_KEY)) || {}; } catch { return {}; } }
 function savePlanChecks(obj) { localStorage.setItem(PLAN_CHECK_KEY, JSON.stringify(obj)); }
@@ -1929,7 +1938,7 @@ function renderPlan() {
                 `).join('')}
               <div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
                 <span style="font-size:11px;color:var(--t3);flex:1">完成打卡</span>
-                ${[1,2].map(w=>`<button class="wk-box${isWorkoutChecked(workoutPhase,'${d.day}_w'+w)?' done':''}" onclick="toggleWorkoutCheck(${workoutPhase},'${d.day}_w${w}')">第${w}週</button>`).join('')}
+                ${[1,2].map(w => renderWkBox(workoutPhase, d.day, w)).join("")}
               </div>
             </div>
           </div>`).join('')}
@@ -2112,11 +2121,11 @@ function renderPlan() {
           const done = unlocked.includes(a.id);
           const img = getImg(a.cat, a.idx);
           return `<div class="achieve-card ${done?'unlocked':'locked'}">
-            ${img
-              ? `<img src="${img}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;margin-bottom:6px;${done?'':'filter:grayscale(1);opacity:0.4'}">`
-              : `<div class="achieve-emoji">⭐</div>`}
+            ${done && img
+              ? `<img src="${img}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;margin-bottom:6px">`
+              : `<div style="font-size:36px;margin-bottom:6px;line-height:1">${done?'⭐':'🔒'}</div>`}
             <div class="achieve-name">${a.name}</div>
-            <div class="achieve-desc">${a.desc}</div>
+            <div class="achieve-desc">${done ? a.desc : '？？？'}</div>
             ${done ? '<div class="achieve-badge">✦ 已解鎖</div>' : ''}
           </div>`;
         }).join('')}
