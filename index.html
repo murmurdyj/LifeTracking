@@ -714,28 +714,34 @@ function getPickedRating(groupId) {
 }
 
 function doSaveDaily(existingId) {
-  const date = document.getElementById('dl-date').value;
-  if (!date) return;
-  const log = {
-    id: existingId || uid(),
-    date,
-    weight: parseFloat(document.getElementById('dl-weight').value)||null,
-    bodyFat: parseFloat(document.getElementById('dl-bodyfat').value)||null,
-    sleep: parseFloat(document.getElementById('dl-sleep').value)||null,
-    steps: parseFloat(document.getElementById('dl-steps').value)||null,
-    water: parseFloat(document.getElementById('dl-water').value)||null,
-    activeEnergy: parseFloat(document.getElementById('dl-energy').value)||null,
-    breathRate: parseFloat(document.getElementById('dl-br').value)||null,
-    stress: getPickedRating('dl-stress'),
-    mood: getPickedRating('dl-mood'),
-    lateSnack: document.getElementById('dl-snack').checked,
-    overtime: document.getElementById('dl-ot').checked,
-    caloriesTotal: STATE.daily.find(d=>d.date===date)?.caloriesTotal || 0,
-    proteinTotal: STATE.daily.find(d=>d.date===date)?.proteinTotal || 0,
-  };
-  upsertDaily(log);
-  closeModal();
-  renderAll();
+  try {
+    const date = document.getElementById('dl-date').value;
+    if (!date) return;
+    const log = {
+      id: existingId || uid(),
+      date,
+      weight: parseFloat(document.getElementById('dl-weight').value)||null,
+      bodyFat: parseFloat(document.getElementById('dl-bodyfat').value)||null,
+      sleep: parseFloat(document.getElementById('dl-sleep').value)||null,
+      steps: parseFloat(document.getElementById('dl-steps').value)||null,
+      water: parseFloat(document.getElementById('dl-water').value)||null,
+      activeEnergy: parseFloat(document.getElementById('dl-energy').value)||null,
+      breathRate: parseFloat(document.getElementById('dl-br').value)||null,
+      stress: getPickedRating('dl-stress'),
+      mood: getPickedRating('dl-mood'),
+      lateSnack: document.getElementById('dl-snack').checked,
+      overtime: document.getElementById('dl-ot').checked,
+      caloriesTotal: STATE.daily.find(d=>d.date===date)?.caloriesTotal || 0,
+      proteinTotal: STATE.daily.find(d=>d.date===date)?.proteinTotal || 0,
+    };
+    upsertDaily(log);
+    closeModal();
+    renderAll();
+    checkAchievements();
+  } catch(e) {
+    alert('儲存失敗：' + e.message);
+    console.error('doSaveDaily error:', e);
+  }
 }
 
 function doDeleteDaily(date) {
@@ -1038,28 +1044,34 @@ function setWaterPreset(ml) {
 }
 
 function doSaveFood(existingId) {
-  const meal = document.getElementById('fd-meal').value;
-  const date = document.getElementById('fd-date').value;
-  let food;
-  if (meal === '飲水') {
-    const ml = parseFloat(document.getElementById('fd-water-ml').value) || 0;
-    if (!ml) { alert('請輸入飲水量'); return; }
-    food = { id: existingId || uid(), date, mealType: '飲水', foodName: '飲水', amount: ml, calories: 0, protein: 0, carbs: 0, fat: 0 };
-  } else {
-    const name = document.getElementById('fd-name')?.value.trim();
-    if (!name) { alert('請輸入食物名稱'); return; }
-    food = {
-      id: existingId || uid(), date, mealType: meal, foodName: name,
-      amount: parseFloat(document.getElementById('fd-amount').value)||0,
-      calories: parseFloat(document.getElementById('fd-cal').value)||0,
-      protein: parseFloat(document.getElementById('fd-prot').value)||0,
-      carbs: parseFloat(document.getElementById('fd-carb').value)||0,
-      fat: parseFloat(document.getElementById('fd-fat').value)||0,
-    };
+  try {
+    const meal = document.getElementById('fd-meal').value;
+    const date = document.getElementById('fd-date').value;
+    let food;
+    if (meal === '飲水') {
+      const ml = parseFloat(document.getElementById('fd-water-ml').value) || 0;
+      if (!ml) { alert('請輸入飲水量'); return; }
+      food = { id: existingId || uid(), date, mealType: '飲水', foodName: '飲水', amount: ml, calories: 0, protein: 0, carbs: 0, fat: 0 };
+    } else {
+      const name = document.getElementById('fd-name')?.value.trim();
+      if (!name) { alert('請輸入食物名稱'); return; }
+      food = {
+        id: existingId || uid(), date, mealType: meal, foodName: name,
+        amount: parseFloat(document.getElementById('fd-amount').value)||0,
+        calories: parseFloat(document.getElementById('fd-cal').value)||0,
+        protein: parseFloat(document.getElementById('fd-prot').value)||0,
+        carbs: parseFloat(document.getElementById('fd-carb').value)||0,
+        fat: parseFloat(document.getElementById('fd-fat').value)||0,
+      };
+    }
+    if (existingId) updateFood(food); else addFood(food);
+    closeModal();
+    renderAll();
+    checkAchievements();
+  } catch(e) {
+    alert('儲存失敗：' + e.message);
+    console.error('doSaveFood error:', e);
   }
-  if (existingId) updateFood(food); else addFood(food);
-  closeModal();
-  renderAll();
 }
 
 function doDeleteFood(id) {
