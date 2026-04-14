@@ -1914,14 +1914,15 @@ function renderPlan() {
           <thead><tr><th>食物</th><th>份量</th><th>蛋白質</th><th>備註</th></tr></thead>
           <tbody>
             ${[
-              {n:'雞蛋',a:'2顆',p:12,w:12,note:'水煮免顧'},
-              {n:'雞胸肉',a:'100g',p:25,w:83,note:'超市即食包'},
-              {n:'無糖豆漿',a:'500ml',p:18,w:60,note:'早餐最快補'},
-              {n:'希臘優格',a:'150g',p:15,w:50,note:'選無糖款'},
-              {n:'板豆腐',a:'150g',p:13,w:43,note:'最便宜植物蛋白'},
-              {n:'鮪魚罐頭',a:'1罐150g',p:33,w:100,note:'開罐即食'},
-              {n:'毛豆',a:'100g',p:11,w:37,note:'冷凍包微波3分鐘'},
+              {n:'雞蛋',a:'2顆',p:12,w:40,note:'水煮免顧，隨時補'},
+              {n:'雞胸肉',a:'100g',p:25,w:83,note:'舒肥即食包最方便'},
               {n:'茶葉蛋',a:'2顆',p:14,w:47,note:'便利商店隨手買'},
+              {n:'雞腿便當',a:'1個',p:28,w:93,note:'自助餐必點，飯減半'},
+              {n:'水煮雞胸',a:'100g',p:31,w:100,note:'自助餐點這個'},
+              {n:'希臘優格',a:'150g',p:15,w:50,note:'選無糖款'},
+              {n:'無糖鮮奶',a:'500ml',p:16,w:53,note:'不喝豆漿的替代'},
+              {n:'板豆腐',a:'150g',p:13,w:43,note:'滷過更好吃'},
+              {n:'毛豆',a:'100g',p:11,w:37,note:'冷凍包微波3分鐘'},
             ].map(f=>`<tr>
               <td style="font-weight:500">${f.n}</td>
               <td style="color:var(--t2)">${f.a}</td>
@@ -1932,13 +1933,13 @@ function renderPlan() {
         </table>
       </div>
 
-      <div class="sec">懶人一日三餐示範（合計 100g+）</div>
+      <div class="sec">一日三餐示範（你的版本）</div>
       <div class="card" style="margin-bottom:12px">
         ${[
-          {meal:'早餐',name:'無糖豆漿 + 水煮蛋 2 顆',desc:'500ml 豆漿 + 前一晚預煮，5 分鐘搞定',prot:'30g'},
-          {meal:'午餐',name:'便利商店策略',desc:'茶葉蛋 2 顆 + 雞胸便當（減半白飯）',prot:'35g'},
-          {meal:'點心',name:'希臘優格 150g（無糖）',desc:'飽足感高，避免晚餐過量',prot:'15g'},
-          {meal:'晚餐',name:'板豆腐 + 蔬菜 + 少量飯',desc:'豆腐切塊加醬油蒸熟，搭配冷凍蔬菜包',prot:'20g'},
+          {meal:'早餐',name:'鮮奶 + 茶葉蛋 2 顆 + 熱食',desc:'無糖鮮奶 500ml + 便利商店熱食（包子／飯糰／熱湯）',prot:'30g'},
+          {meal:'午餐',name:'自助餐策略',desc:'雞腿或雞胸 + 2–3 種燙青菜 + 少量飯，熱的鹹食最滿足',prot:'35g'},
+          {meal:'點心',name:'希臘優格 150g（無糖）',desc:'飽足感高，補蛋白質又不會太撐',prot:'15g'},
+          {meal:'晚餐',name:'雞肉料理 + 燙青菜 + 少量飯',desc:'可以是外食雞腿飯、家裡炒雞肉，菜類都 OK',prot:'28g'},
         ].map(r=>`<div class="plan-food-row">
           <div class="plan-food-meal">${r.meal}</div>
           <div style="flex:1;margin:0 8px"><div class="plan-food-name" style="margin:0">${r.name}</div><div class="plan-food-desc">${r.desc}</div></div>
@@ -1946,32 +1947,32 @@ function renderPlan() {
         </div>`).join('')}
         <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
           <div style="font-size:12px;color:var(--t2)">合計蛋白質</div>
-          <div style="font-size:14px;font-weight:700;color:var(--green)">100g ✓</div>
+          <div style="font-size:14px;font-weight:700;color:var(--green)">108g ✓</div>
         </div>
       </div>
 
-      <div class="sec">外食點餐原則</div>
+      <div class="sec">自助餐點餐原則</div>
       <div class="plan-tip-grid" style="margin-bottom:12px">
-        <div class="plan-tip-card"><div class="plan-tip-title">飯減半</div><div class="plan-tip-desc">多加一個蛋或豆腐，不需特別找健康餐廳</div></div>
-        <div class="plan-tip-card"><div class="plan-tip-title">週日備餐 30 分鐘</div><div class="plan-tip-desc">煮 10 顆水煮蛋、滷豆腐，放冰箱用 4–5 天</div></div>
-        <div class="plan-tip-card"><div class="plan-tip-title">下午 2 點後停咖啡因</div><div class="plan-tip-desc">半衰期 5–7 小時，晚上仍有殘留</div></div>
-        <div class="plan-tip-card"><div class="plan-tip-title">喝的蛋白質</div><div class="plan-tip-desc">一天兩瓶無糖豆漿 = 36g，完全不需料理</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">雞肉優先</div><div class="plan-tip-desc">雞腿、雞胸、三杯雞都行，蛋白質高又好吃</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">菜類隨意選</div><div class="plan-tip-desc">各種燙青菜、炒菜都 OK，不用特別挑</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">飯減半</div><div class="plan-tip-desc">少飯多菜多肉，不需找特別的健康餐廳</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">下午 2 點後停咖啡因</div><div class="plan-tip-desc">半衰期 5–7 小時，晚上仍有殘留影響睡眠</div></div>
       </div>
 
-      <div class="plan-warn">蛋白質要分散在三餐攝取，每餐 25–35g 的效果遠比一餐吃 80g 更好。身體單次能用於肌肉合成的蛋白質有上限。</div>
+      <div class="plan-warn">蛋白質要分散在三餐攝取，每餐 25–35g 的效果遠比一餐吃 80g 更好。正餐吃熱的鹹食完全沒問題，重點是有沒有蛋白質來源。</div>
     `;
   }
 
   else if (planTab === 'sleep') {
     content = `
-      <div class="sec">睡前 2 小時黃金作息</div>
+      <div class="sec">睡前 2 小時黃金作息（從預計睡覺時間往前算）</div>
       <div style="margin-bottom:14px">
         ${[
-          {time:'9pm',title:'燈光調暗 + 停止工作',desc:'關掉電腦，將室內燈換成暖色光。藍光抑制褪黑激素分泌。'},
-          {time:'9:15',title:'溫水淋浴 10 分鐘',desc:'38–40°C 溫水浴後體溫快速下降，平均縮短入睡時間 10–15 分鐘。'},
-          {time:'9:30',title:'手機放到房間外',desc:'切換飛航模式或放到臥室外充電，通知聲讓大腦持續保持警覺狀態。'},
-          {time:'9:40',title:'10 分鐘放鬆活動',desc:'輕鬆閱讀紙本書、緩慢伸展、寫隔天待辦清單（把明天的事卸載出腦袋）。'},
-          {time:'10pm',title:'上床，固定時間',desc:'就算睡不著也在 10–10:30pm 躺下。大腦靠固定時間信號建立睡眠節律。'},
+          {time:'−2h',  title:'調暗燈光，停止工作',desc:'關掉電腦，將室內燈換成暖色光。不一定要 9 點，加班到 11 點就從 11 點往前算。'},
+          {time:'−1.5h',title:'溫水淋浴 10 分鐘',desc:'38–40°C 溫水浴後體溫快速下降，平均縮短入睡時間 10–15 分鐘。'},
+          {time:'−1h',  title:'手機放到房間外',desc:'切換飛航模式或放到臥室外充電，通知聲讓大腦持續保持警覺。'},
+          {time:'−30m', title:'10 分鐘放鬆活動',desc:'輕鬆閱讀、緩慢伸展、寫隔天待辦清單（把明天的事卸載出腦袋）。'},
+          {time:'就寢',  title:'固定時間上床',desc:'盡量維持同樣的就寢時間，大腦靠固定信號建立睡眠節律。'},
         ].map(s=>`<div class="plan-sleep-item">
           <div class="plan-sleep-time">${s.time}</div>
           <div class="plan-sleep-card">
@@ -1980,6 +1981,9 @@ function renderPlan() {
           </div>
         </div>`).join('')}
       </div>
+
+      <div class="sec">關於補眠（你的情況特別說明）</div>
+      <div class="plan-warn" style="margin-bottom:12px">你長期睡眠不足，週末適度補眠是必要的。建議補眠最多 1.5 小時，不要超過平常起床時間 2 小時以上。目標是逐漸把平日睡眠時間拉長，而不是靠週末大補。</div>
 
       <div class="sec">臥室環境調整</div>
       <div class="plan-env-grid">
@@ -1996,21 +2000,21 @@ function renderPlan() {
         <div class="plan-do">
           <div class="pdh">有助睡眠</div>
           <ul style="padding-left:14px;margin:0">
-            ${['固定起床時間（含假日）','白天曬 15 分鐘陽光','下午後不喝咖啡因','睡前寫出明天待辦','規律輕度運動'].map(t=>`<li class="plan-do" style="background:none;border:none;padding:0">${t}</li>`).join('')}
+            ${['固定起床時間（含假日）','白天曬 15 分鐘陽光','下午後不喝咖啡因','睡前寫出明天待辦','規律輕度運動'].map(t=>`<li style="font-size:12px;color:#085041;margin-bottom:3px">${t}</li>`).join('')}
           </ul>
         </div>
         <div class="plan-dont">
           <div class="pdh">破壞睡眠</div>
           <ul style="padding-left:14px;margin:0">
-            ${['睡前滑手機','睡前飲酒（讓睡眠變淺）','補眠超過 90 分鐘','晚上劇烈運動','週末睡到中午'].map(t=>`<li class="plan-dont" style="background:none;border:none;padding:0">${t}</li>`).join('')}
+            ${['睡前滑手機','睡前飲酒（讓睡眠變淺）','白天小睡超過 20 分鐘','晚上劇烈運動','補眠超過平常 2 小時'].map(t=>`<li style="font-size:12px;color:#A32D2D;margin-bottom:3px">${t}</li>`).join('')}
           </ul>
         </div>
       </div>
 
       <div class="plan-stress-box">
-        <div class="plan-stress-title">壓力大時：讓大腦真正關機的三個方法</div>
+        <div class="plan-stress-title">壓力大、腦袋關不掉時：三個方法</div>
         <div class="plan-stress-item">① 「擔憂清單」法：睡前把腦中煩惱寫下來，後面加一句「明天再處理」</div>
-        <div class="plan-stress-item">② 4-7-8 呼吸法：吸氣 4 秒 → 屏氣 7 秒 → 吐氣 8 秒，重複 4 次</div>
+        <div class="plan-stress-item">② 4-7-8 呼吸法：吸氣 4 秒 → 屏氣 7 秒 → 吐氣 8 秒，重複 4 次。對你特別有用，因為長期高壓讓神經系統很難切換。</div>
         <div class="plan-stress-item">③ 身體掃描：從腳趾開始逐步放鬆每個部位，讓大腦有事做</div>
       </div>
 
