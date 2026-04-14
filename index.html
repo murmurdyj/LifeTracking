@@ -382,17 +382,39 @@ const DAILY_KEY = 'lt2_daily', FOOD_KEY = 'lt2_food';
 function calcScore(log) {
   if (!log) return 0;
   let s = 0;
+
+  // 睡眠 25分（分層）
   const sleep = log.sleep||0;
   if (sleep >= 7) s += 25;
   else if (sleep >= 6) s += 15;
   else if (sleep >= 5) s += 8;
+
+  // 熱量 20分（1800-2000 最佳，分層）
   const c = log.caloriesTotal||0;
-  if (c >= 1400 && c <= 1800) s += 20;
-  if ((log.proteinTotal||0) >= 100) s += 20;
+  if (c >= 1800 && c <= 2000) s += 20;
+  else if (c >= 1600 && c < 1800) s += 12;
+
+  // 蛋白質 20分（分層）
+  const p = log.proteinTotal||0;
+  if (p >= 120) s += 20;
+  else if (p >= 100) s += 12;
+
+  // 壓力 15分
   if ((log.stress||5) <= 3) s += 15;
-  if ((log.steps||0) >= 7000) s += 10;
+
+  // 步數 10分（分層）
+  const steps = log.steps||0;
+  if (steps >= 7000) s += 10;
+  else if (steps >= 5000) s += 5;
+
+  // 沒宵夜 5分
   if (!log.lateSnack) s += 5;
-  if ((log.water||0) >= 2500) s += 5;
+
+  // 飲水 5分（分層）
+  const water = log.water||0;
+  if (water >= 2500) s += 5;
+  else if (water >= 2000) s += 3;
+
   return s;
 }
 
@@ -407,7 +429,7 @@ function calcFatRisk(log) {
     const deficit = energy - cal;
     calScore = deficit < -200 ? 1 : deficit < 0 ? 0.5 : 0;
   } else {
-    calScore = cal > 1800 ? 1 : cal < 1400 ? 0.3 : 0;
+    calScore = cal > 2000 ? 1 : cal < 1800 ? 0.3 : 0;
   }
 
   const sleepScore = (log.sleep||8) < 6.5 ? 1 : 0;
