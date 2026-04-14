@@ -75,8 +75,8 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .label{font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
 
 /* Modal */
-.overlay{position:fixed;inset:0;background:rgba(42,37,32,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .15s;-webkit-overflow-scrolling:touch}
-.sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:6px 18px calc(28px + var(--safe));animation:slideUp .22s;position:relative;z-index:201}
+.overlay{position:fixed;inset:0;background:rgba(42,37,32,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .15s;-webkit-overflow-scrolling:touch}
+.sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:6px 18px calc(28px + var(--safe));animation:slideUp .22s;position:relative;z-index:101}
 .handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:6px auto 14px}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -284,29 +284,19 @@ canvas{width:100%!important}
 .plan-stress-item{font-size:12px;color:#534AB7;line-height:1.6;margin-bottom:4px}
 .plan-warn{background:var(--yellow-s);border:1px solid #EF9F27;border-radius:12px;padding:11px 13px;font-size:12px;color:#633806;line-height:1.6;margin-bottom:8px}
 
-/* Workout week checkin */
-.workout-check-row{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
-.workout-check-row:last-child{border-bottom:none}
-.workout-check-label{flex:1;font-size:13px;font-weight:500}
-.workout-check-weeks{display:flex;gap:6px}
-.wk-box{width:44px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--soft);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--t3);transition:all .15s;font-family:inherit}
-.wk-box.done{background:var(--green);border-color:var(--green);color:#fff}
-
-/* Achievements */
-.achieve-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.achieve-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:14px 10px;text-align:center;transition:all .15s}
-.achieve-card.unlocked{border-color:var(--yellow);background:var(--yellow-s)}
-.achieve-card.locked{background:var(--soft)}
-.achieve-card.locked img{display:none}
-.achieve-emoji{font-size:32px;margin-bottom:6px;line-height:1}
-.achieve-name{font-size:12px;font-weight:600;color:var(--t1);line-height:1.3}
-.achieve-desc{font-size:10px;color:var(--t2);margin-top:3px;line-height:1.4}
-.achieve-badge{font-size:10px;font-weight:700;color:var(--yellow);margin-top:4px}
-
 /* Backup */
 .backup{margin-top:4px}
 .backup-title{font-size:14px;font-weight:600;margin-bottom:10px}
 .backup-row{display:flex;gap:8px}
+.wk-box{min-width:44px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--soft);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--t3);font-family:inherit;padding:0 6px}
+.wk-box.done{background:var(--green);border-color:var(--green);color:#fff}
+.achieve-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.achieve-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:12px 8px;text-align:center}
+.achieve-card.unlocked{border-color:var(--yellow);background:var(--yellow-s)}
+.achieve-card.locked{background:var(--soft)}
+.achieve-name{font-size:12px;font-weight:600;color:var(--t1);line-height:1.3}
+.achieve-desc{font-size:10px;color:var(--t2);margin-top:3px;line-height:1.4}
+.achieve-badge{font-size:10px;font-weight:700;color:var(--yellow);margin-top:4px}
 
 /* Month grouping */
 .month-group{margin-bottom:8px}
@@ -380,7 +370,6 @@ canvas{width:100%!important}
 
 <script>
 // ─── Utils ───────────────────────────────────────────────
-window.onerror = (msg, src, line, col, err) => { console.error('App Error:', msg, 'line:', line); return false; };
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const daysAgo = n => { const d = new Date(); d.setDate(d.getDate()-n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const fmtDate = d => new Date(d+'T12:00:00').toLocaleDateString('zh-TW',{month:'short',day:'numeric',weekday:'short'});
@@ -393,39 +382,17 @@ const DAILY_KEY = 'lt2_daily', FOOD_KEY = 'lt2_food';
 function calcScore(log) {
   if (!log) return 0;
   let s = 0;
-
-  // 睡眠 25分
   const sleep = log.sleep||0;
   if (sleep >= 7) s += 25;
   else if (sleep >= 6) s += 15;
   else if (sleep >= 5) s += 8;
-
-  // 熱量 20分
   const c = log.caloriesTotal||0;
-  if (c >= 1800 && c <= 2000) s += 20;
-  else if (c >= 1600 && c < 1800) s += 12;
-
-  // 蛋白質 20分
-  const p = log.proteinTotal||0;
-  if (p >= 120) s += 20;
-  else if (p >= 100) s += 12;
-
-  // 壓力 15分
+  if (c >= 1400 && c <= 1800) s += 20;
+  if ((log.proteinTotal||0) >= 100) s += 20;
   if ((log.stress||5) <= 3) s += 15;
-
-  // 步數 10分
-  const steps = log.steps||0;
-  if (steps >= 7000) s += 10;
-  else if (steps >= 5000) s += 5;
-
-  // 沒宵夜 5分
+  if ((log.steps||0) >= 7000) s += 10;
   if (!log.lateSnack) s += 5;
-
-  // 飲水 5分
-  const water = log.water||0;
-  if (water >= 2500) s += 5;
-  else if (water >= 2000) s += 3;
-
+  if ((log.water||0) >= 2500) s += 5;
   return s;
 }
 
@@ -440,7 +407,7 @@ function calcFatRisk(log) {
     const deficit = energy - cal;
     calScore = deficit < -200 ? 1 : deficit < 0 ? 0.5 : 0;
   } else {
-    calScore = cal > 2000 ? 1 : cal < 1800 ? 0.3 : 0;
+    calScore = cal > 1800 ? 1 : cal < 1400 ? 0.3 : 0;
   }
 
   const sleepScore = (log.sleep||8) < 6.5 ? 1 : 0;
@@ -553,7 +520,7 @@ function showModal(html) {
   ov.className = 'overlay';
   ov.innerHTML = `<div class="sheet">${html}</div>`;
   ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
-  document.body.appendChild(ov);
+  document.getElementById('app').appendChild(ov);
   return ov;
 }
 function closeModal() { document.querySelector('.overlay')?.remove(); }
@@ -714,34 +681,28 @@ function getPickedRating(groupId) {
 }
 
 function doSaveDaily(existingId) {
-  try {
-    const date = document.getElementById('dl-date').value;
-    if (!date) return;
-    const log = {
-      id: existingId || uid(),
-      date,
-      weight: parseFloat(document.getElementById('dl-weight').value)||null,
-      bodyFat: parseFloat(document.getElementById('dl-bodyfat').value)||null,
-      sleep: parseFloat(document.getElementById('dl-sleep').value)||null,
-      steps: parseFloat(document.getElementById('dl-steps').value)||null,
-      water: parseFloat(document.getElementById('dl-water').value)||null,
-      activeEnergy: parseFloat(document.getElementById('dl-energy').value)||null,
-      breathRate: parseFloat(document.getElementById('dl-br').value)||null,
-      stress: getPickedRating('dl-stress'),
-      mood: getPickedRating('dl-mood'),
-      lateSnack: document.getElementById('dl-snack').checked,
-      overtime: document.getElementById('dl-ot').checked,
-      caloriesTotal: STATE.daily.find(d=>d.date===date)?.caloriesTotal || 0,
-      proteinTotal: STATE.daily.find(d=>d.date===date)?.proteinTotal || 0,
-    };
-    upsertDaily(log);
-    closeModal();
-    renderAll();
-    checkAchievements();
-  } catch(e) {
-    alert('儲存失敗：' + e.message);
-    console.error('doSaveDaily error:', e);
-  }
+  const date = document.getElementById('dl-date').value;
+  if (!date) return;
+  const log = {
+    id: existingId || uid(),
+    date,
+    weight: parseFloat(document.getElementById('dl-weight').value)||null,
+    bodyFat: parseFloat(document.getElementById('dl-bodyfat').value)||null,
+    sleep: parseFloat(document.getElementById('dl-sleep').value)||null,
+    steps: parseFloat(document.getElementById('dl-steps').value)||null,
+    water: parseFloat(document.getElementById('dl-water').value)||null,
+    activeEnergy: parseFloat(document.getElementById('dl-energy').value)||null,
+    breathRate: parseFloat(document.getElementById('dl-br').value)||null,
+    stress: getPickedRating('dl-stress'),
+    mood: getPickedRating('dl-mood'),
+    lateSnack: document.getElementById('dl-snack').checked,
+    overtime: document.getElementById('dl-ot').checked,
+    caloriesTotal: STATE.daily.find(d=>d.date===date)?.caloriesTotal || 0,
+    proteinTotal: STATE.daily.find(d=>d.date===date)?.proteinTotal || 0,
+  };
+  upsertDaily(log);
+  closeModal();
+  renderAll();
 }
 
 function doDeleteDaily(date) {
@@ -1044,34 +1005,28 @@ function setWaterPreset(ml) {
 }
 
 function doSaveFood(existingId) {
-  try {
-    const meal = document.getElementById('fd-meal').value;
-    const date = document.getElementById('fd-date').value;
-    let food;
-    if (meal === '飲水') {
-      const ml = parseFloat(document.getElementById('fd-water-ml').value) || 0;
-      if (!ml) { alert('請輸入飲水量'); return; }
-      food = { id: existingId || uid(), date, mealType: '飲水', foodName: '飲水', amount: ml, calories: 0, protein: 0, carbs: 0, fat: 0 };
-    } else {
-      const name = document.getElementById('fd-name')?.value.trim();
-      if (!name) { alert('請輸入食物名稱'); return; }
-      food = {
-        id: existingId || uid(), date, mealType: meal, foodName: name,
-        amount: parseFloat(document.getElementById('fd-amount').value)||0,
-        calories: parseFloat(document.getElementById('fd-cal').value)||0,
-        protein: parseFloat(document.getElementById('fd-prot').value)||0,
-        carbs: parseFloat(document.getElementById('fd-carb').value)||0,
-        fat: parseFloat(document.getElementById('fd-fat').value)||0,
-      };
-    }
-    if (existingId) updateFood(food); else addFood(food);
-    closeModal();
-    renderAll();
-    checkAchievements();
-  } catch(e) {
-    alert('儲存失敗：' + e.message);
-    console.error('doSaveFood error:', e);
+  const meal = document.getElementById('fd-meal').value;
+  const date = document.getElementById('fd-date').value;
+  let food;
+  if (meal === '飲水') {
+    const ml = parseFloat(document.getElementById('fd-water-ml').value) || 0;
+    if (!ml) { alert('請輸入飲水量'); return; }
+    food = { id: existingId || uid(), date, mealType: '飲水', foodName: '飲水', amount: ml, calories: 0, protein: 0, carbs: 0, fat: 0 };
+  } else {
+    const name = document.getElementById('fd-name')?.value.trim();
+    if (!name) { alert('請輸入食物名稱'); return; }
+    food = {
+      id: existingId || uid(), date, mealType: meal, foodName: name,
+      amount: parseFloat(document.getElementById('fd-amount').value)||0,
+      calories: parseFloat(document.getElementById('fd-cal').value)||0,
+      protein: parseFloat(document.getElementById('fd-prot').value)||0,
+      carbs: parseFloat(document.getElementById('fd-carb').value)||0,
+      fat: parseFloat(document.getElementById('fd-fat').value)||0,
+    };
   }
+  if (existingId) updateFood(food); else addFood(food);
+  closeModal();
+  renderAll();
 }
 
 function doDeleteFood(id) {
@@ -1087,7 +1042,7 @@ function genInsights(log, logs) {
   const recent = [...logs].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7);
 
   // 連續熱量超標
-  const overCal = recent.filter(d=>d.caloriesTotal>2000);
+  const overCal = recent.filter(d=>d.caloriesTotal>1800);
   if (overCal.length >= 2) hints.push({icon:'🔥',text:`最近 ${overCal.length} 天熱量超標，注意飲食控制`,color:'red'});
 
   // 連續睡眠不足
@@ -1136,8 +1091,8 @@ function renderDashboard() {
   const riskColor = risk > 60 ? 'red' : risk > 30 ? 'yellow' : 'green';
   const riskLabel = risk > 60 ? '高風險' : risk > 30 ? '中等' : '低風險';
   const sleepOk = (log.sleep||0) >= 7, stepsOk = (log.steps||0) >= 7000;
-  const calOk = (log.caloriesTotal||0) >= 1800 && (log.caloriesTotal||0) <= 2000;
-  const protOk = (log.proteinTotal||0) >= 120;
+  const calOk = (log.caloriesTotal||0) >= 1400 && (log.caloriesTotal||0) <= 1800;
+  const protOk = (log.proteinTotal||0) >= 100;
   const ring = ringHTML(sc, scoreColor(sc));
   const moodEmojis = ['😞','😕','😐','🙂','😄'];
   const stressEmojis = ['😌','🙂','😐','😣','😰'];
@@ -1156,12 +1111,12 @@ function renderDashboard() {
           <div class="score-title">今日健康分數</div>
           <div class="score-rules">
             ${sleepTieredRule(log.sleep||0)}
-            ${tieredRule('熱量', c>=1800&&c<=2000, c>=1600&&c<1800, 20, 12, c>=1800&&c<=2000?'1800-2000':c>=1600?'1600-1800':'未達標')}
-            ${tieredRule('蛋白質', protOk, (log.proteinTotal||0)>=100, 20, 12, protOk?'≥120g':(log.proteinTotal||0)>=100?'100-120g':'不足')}
+            ${sRule('熱量 1400-1800', calOk, 20)}
+            ${sRule('蛋白質 ≥ 100g', protOk, 20)}
             ${sRule('壓力 ≤ 3', (log.stress||5)<=3, 15)}
-            ${tieredRule('步數', stepsOk, (log.steps||0)>=5000, 10, 5, stepsOk?'≥7000':( log.steps||0)>=5000?'5000-7000':'不足')}
+            ${sRule('步數 ≥ 7000', stepsOk, 10)}
             ${sRule('沒有宵夜', !log.lateSnack, 5)}
-            ${tieredRule('飲水', (log.water||0)>=2500, (log.water||0)>=2000, 5, 3, (log.water||0)>=2500?'≥2500ml':(log.water||0)>=2000?'2000-2500':'不足')}
+            ${sRule('飲水 ≥ 2500ml', (log.water||0)>=2500, 5)}
           </div>
         </div>
       </div>
@@ -1214,9 +1169,9 @@ function renderDashboard() {
     </div>
 
     <div class="sec">營養</div>
-    ${statCard('🔥','熱量',log.caloriesTotal,'kcal', calOk?'green':(c>=1600&&c<1800)?'yellow':c>2000?'red':'yellow', calOk?'達標':c>2000?'超標':'不足', '1800–2000')}
+    ${statCard('🔥','熱量',log.caloriesTotal,'kcal', calOk?'green':log.caloriesTotal>1800?'red':'yellow', calOk?'達標':log.caloriesTotal>1800?'過量':'不足', '1400–1800')}
     <div style="height:8px"></div>
-    ${statCard('🥩','蛋白質',log.proteinTotal,'g', protOk?'green':(log.proteinTotal||0)>=100?'yellow':'red', protOk?'達標':(log.proteinTotal||0)>=100?'接近':'不足', '120g')}
+    ${statCard('🥩','蛋白質',log.proteinTotal,'g', protOk?'green':'red', protOk?'達標':'不足', '100g')}
     <div style="height:8px"></div>
     ${statCard('💧','飲水',log.water,'ml', (log.water||0)>=2500?'green':(log.water||0)>=1800?'yellow':'red', (log.water||0)>=2500?'充足':'不足', '2500ml')}
 
@@ -1263,17 +1218,6 @@ function sleepTieredRule(sleep) {
   return `<div class="score-rule">
     <span class="sr-dot${met?' met':''}" style="${dotStyle}"></span>
     <span class="sr-lbl">${label} <span style="font-size:10px;color:var(--t3)">${sleep>=7?'充足':sleep>=6?'尚可':sleep>=5?'偏少':'不足'}</span></span>
-    <span class="sr-pts${met?' met':''}">${pts>0?'+'+pts:'0'}</span>
-  </div>`;
-}
-
-function tieredRule(label, full, partial, fullPts, partialPts, statusText) {
-  const met = full || partial;
-  const pts = full ? fullPts : partial ? partialPts : 0;
-  const dotStyle = partial && !full ? 'background:linear-gradient(135deg,var(--yellow) 50%,var(--border) 50%)' : '';
-  return `<div class="score-rule">
-    <span class="sr-dot${met?' met':''}" style="${dotStyle}"></span>
-    <span class="sr-lbl">${label} <span style="font-size:10px;color:var(--t3)">${statusText}</span></span>
     <span class="sr-pts${met?' met':''}">${pts>0?'+'+pts:'0'}</span>
   </div>`;
 }
@@ -1533,7 +1477,7 @@ function renderTrends() {
     {key:'bodyFat',label:'體脂率',emoji:'📊',unit:'%',color:'#9b7fc8',ref:null},
     {key:'sleep',label:'睡眠',emoji:'😴',unit:'hr',color:'#4ab3a8',ref:7},
     {key:'steps',label:'步數',emoji:'👟',unit:'步',color:'#4caf82',ref:7000},
-    {key:'caloriesTotal',label:'熱量',emoji:'🔥',unit:'kcal',color:'#e07a40',ref:1900},
+    {key:'caloriesTotal',label:'熱量',emoji:'🔥',unit:'kcal',color:'#e07a40',ref:1600},
     {key:'proteinTotal',label:'蛋白質',emoji:'🥩',unit:'g',color:'#e8a838',ref:100},
     {key:'score',label:'今日分數',emoji:'🏆',unit:'分',color:'#e06060',ref:null},
   ];
@@ -1598,153 +1542,110 @@ function setTrendRange(days) {
   renderTrends();
 }
 
-// ─── Achievement system ───────────────────────────────────
-
-// 圖片池
-const IMG = {
-  sonic:   Array.from({length:7}, (_,i) => `badges/sonic0${i+1}.png`),
-  ling:    Array.from({length:5}, (_,i) => `badges/ling0${i+1}.png`),
-  orm:     Array.from({length:8}, (_,i) => `badges/orm0${i+1}.png`),
-  jennie:  Array.from({length:9}, (_,i) => `badges/jennie0${i+1}.png`),
-  lingorm: Array.from({length:10}, (_,i) => `badges/lingorm${String(i+1).padStart(2,'0')}.png`),
-};
-
-function getImg(cat, seed) {
-  if (cat === 'sonic') return IMG.sonic[seed % IMG.sonic.length];
-  if (cat === 'jennie') return IMG.jennie[seed % IMG.jennie.length];
-  if (cat === 'lingorm') return IMG.lingorm[seed % IMG.lingorm.length];
-  if (cat === 'lingorm_sport') {
-    const pool = [...IMG.ling, ...IMG.orm];
-    return pool[seed % pool.length];
-  }
-  return null;
-}
-
-const ACHIEVEMENTS = [
-  // 🌱 起步成就 → sonic
-  {id:'first_record',   cat:'sonic', idx:0, name:'開始了',     desc:'第一次建立日記錄',           check: () => getDaily().length >= 1},
-  {id:'first_food',     cat:'sonic', idx:1, name:'吃起來',     desc:'第一次記錄飲食',             check: () => getFood().length >= 1},
-  {id:'first_workout',  cat:'sonic', idx:2, name:'動起來',     desc:'第一次完成運動打卡',         check: () => getWorkoutCheckCount() >= 1},
-  {id:'first_5k_steps', cat:'sonic', idx:3, name:'好好走',     desc:'第一次步數超過 5000',        check: () => getDaily().some(d => (d.steps||0) >= 5000)},
-  {id:'water_3000',     cat:'sonic', idx:4, name:'喝夠了',     desc:'某天飲水超過 3000ml',        check: () => getDaily().some(d => (d.water||0) >= 3000)},
-  {id:'record_3',       cat:'sonic', idx:5, name:'連續三天',   desc:'連續記錄 3 天',              check: () => getRecordStreak() >= 3},
-  {id:'checklist_all',  cat:'sonic', idx:6, name:'全勤打卡',   desc:'今日打卡完成全部項目',       check: () => ['sleep7','protein','cal','steps','water','phone','workout','nosnack','stress','veggie'].every(c => isPlanChecked(c))},
-
-  // ☀️ 運動/步數/飲食 → ling + orm 隨機
-  {id:'steps_3',      cat:'lingorm_sport', idx:0, name:'步步為營',   desc:'步數連續 3 天達標',          check: () => getStreakDays('steps', s => s >= 7000) >= 3},
-  {id:'steps_7',      cat:'lingorm_sport', idx:1, name:'健步如飛',   desc:'步數連續 7 天達標',          check: () => getStreakDays('steps', s => s >= 7000) >= 7},
-  {id:'steps_14',     cat:'lingorm_sport', idx:2, name:'連續半月步', desc:'步數連續 14 天達標',         check: () => getStreakDays('steps', s => s >= 7000) >= 14},
-  {id:'workout_7',    cat:'lingorm_sport', idx:3, name:'習慣成型',   desc:'運動打卡累積 7 次',          check: () => getWorkoutCheckCount() >= 7},
-  {id:'protein_7',    cat:'lingorm_sport', idx:4, name:'蛋白質戰士', desc:'蛋白質連續 7 天達標',        check: () => getStreakDays('proteinTotal', p => p >= 100) >= 7},
-  {id:'perfect_day',  cat:'lingorm_sport', idx:5, name:'完美一天',   desc:'單日分數達 90 分',           check: () => getDaily().some(d => (d.score||0) >= 90)},
-  {id:'deficit_5',    cat:'lingorm_sport', idx:6, name:'燃脂進行中', desc:'連續 5 天熱量缺口為正',      check: () => getStreakDays('activeEnergy', e => e > 0) >= 5},
-  {id:'record_7',     cat:'lingorm_sport', idx:7, name:'一週全勤',   desc:'連續記錄 7 天',              check: () => getRecordStreak() >= 7},
-
-  // 💜 睡眠/放鬆/壓力 → jennie
-  {id:'sleep_first',  cat:'jennie', idx:0, name:'好好睡一次', desc:'第一次睡滿 7 小時',          check: () => getDaily().some(d => (d.sleep||0) >= 7)},
-  {id:'sleep_3',      cat:'jennie', idx:1, name:'夢境守護',   desc:'睡眠連續 3 天達標',          check: () => getStreakDays('sleep', s => s >= 7) >= 3},
-  {id:'sleep_7',      cat:'jennie', idx:2, name:'睡眠女王',   desc:'睡眠連續 7 天達標',          check: () => getStreakDays('sleep', s => s >= 7) >= 7},
-  {id:'no_stress',    cat:'jennie', idx:3, name:'心平氣和',   desc:'壓力 ≤ 2 連續 5 天',         check: () => getStreakDays('stress', s => s <= 2) >= 5},
-  {id:'no_snack_7',   cat:'jennie', idx:4, name:'夜間清醒',   desc:'連續 7 天沒吃宵夜',          check: () => getStreakDays('lateSnack', s => !s) >= 7},
-
-  // 🏆 長期成就 → lingorm 合照
-  {id:'record_30',   cat:'lingorm', idx:0, name:'一個月',   desc:'累積記錄 30 天',   check: () => getDaily().length >= 30},
-  {id:'record_60',   cat:'lingorm', idx:1, name:'兩個月',   desc:'累積記錄 60 天',   check: () => getDaily().length >= 60},
-  {id:'record_90',   cat:'lingorm', idx:2, name:'三個月',   desc:'累積記錄 90 天',   check: () => getDaily().length >= 90},
-  {id:'weight_1kg',  cat:'lingorm', idx:3, name:'輕了一點', desc:'體重下降 1kg',     check: () => {
-    const logs = [...getDaily()].filter(d=>d.weight).sort((a,b)=>a.date.localeCompare(b.date));
-    if (logs.length < 2) return false;
-    return logs[0].weight - logs[logs.length-1].weight >= 1;
-  }},
-  {id:'weight_3kg',  cat:'lingorm', idx:4, name:'明顯進步', desc:'體重下降 3kg',     check: () => {
-    const logs = [...getDaily()].filter(d=>d.weight).sort((a,b)=>a.date.localeCompare(b.date));
-    if (logs.length < 2) return false;
-    return logs[0].weight - logs[logs.length-1].weight >= 3;
-  }},
-  {id:'score_80_7',  cat:'lingorm', idx:5, name:'穩定優秀', desc:'連續 7 天分數 ≥ 80', check: () => getStreakDays('score', s => s >= 80) >= 7},
-];
-
-const ACHIEVE_KEY = 'lt2_achievements';
-function getUnlocked() { try { return JSON.parse(localStorage.getItem(ACHIEVE_KEY)) || []; } catch { return []; } }
-function saveUnlocked(arr) { localStorage.setItem(ACHIEVE_KEY, JSON.stringify(arr)); }
-
-function checkAchievements() {
-  const unlocked = getUnlocked();
-  let newOnes = [];
-  ACHIEVEMENTS.forEach(a => {
-    if (!unlocked.includes(a.id) && a.check()) {
-      unlocked.push(a.id);
-      newOnes.push(a);
-    }
-  });
-  if (newOnes.length) {
-    saveUnlocked(unlocked);
-    newOnes.forEach(a => showAchievementToast(a));
-  }
-}
-
-function showAchievementToast(a) {
-  const img = getImg(a.cat, a.idx);
-  const toast = document.createElement('div');
-  toast.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--t1);color:#fff;padding:10px 18px;border-radius:16px;font-size:14px;font-weight:600;z-index:200;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2)';
-  toast.innerHTML = img
-    ? `<img src="${img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover"><div>🎉 成就解鎖<br><span style="font-size:16px">${a.name}</span></div>`
-    : `🎉 成就解鎖：${a.name}`;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3500);
-}
-
-function getStreakDays(field, fn) {
-  const sorted = [...getDaily()].sort((a,b) => b.date.localeCompare(a.date));
-  let streak = 0;
-  let prev = null;
-  for (const d of sorted) {
-    if (!fn(d[field])) break;
-    if (prev) {
-      const diff = (new Date(prev+'T12:00:00') - new Date(d.date+'T12:00:00')) / 86400000;
-      if (diff > 1) break;
-    }
-    streak++;
-    prev = d.date;
-  }
-  return streak;
-}
-
-function getRecordStreak() {
-  const sorted = [...getDaily()].sort((a,b) => b.date.localeCompare(a.date));
-  let streak = 0, prev = null;
-  for (const d of sorted) {
-    if (prev) {
-      const diff = (new Date(prev+'T12:00:00') - new Date(d.date+'T12:00:00')) / 86400000;
-      if (diff > 1) break;
-    }
-    streak++;
-    prev = d.date;
-  }
-  return streak;
-}
-
+// ─── Routing ──────────────────────────────────────────────
+let currentTab = 'dashboard';
+// ─── Workout week checks ─────────────────────────────────
 const WORKOUT_CHECK_KEY = 'lt2_workout_checks';
 function getWorkoutChecks() { try { return JSON.parse(localStorage.getItem(WORKOUT_CHECK_KEY)) || {}; } catch { return {}; } }
 function saveWorkoutChecks(obj) { localStorage.setItem(WORKOUT_CHECK_KEY, JSON.stringify(obj)); }
 function getWorkoutCheckCount() { return Object.values(getWorkoutChecks()).filter(Boolean).length; }
-function toggleWorkoutCheck(phase, day) {
+function isWorkoutChecked(phase, key) { return !!getWorkoutChecks()[phase + '_' + key]; }
+function toggleWorkoutCheck(phase, key) {
   const checks = getWorkoutChecks();
-  const key = `${phase}_${day}`;
-  checks[key] = !checks[key];
+  const k = phase + '_' + key;
+  checks[k] = !checks[k];
   saveWorkoutChecks(checks);
   checkAchievements();
   renderPlan();
 }
-function isWorkoutChecked(phase, day) { return !!getWorkoutChecks()[`${phase}_${day}`]; }
-
 function renderWkBox(phase, day, week) {
-  const key = day + '_w' + week;
-  const done = isWorkoutChecked(phase, key);
-  const cls = 'wk-box' + (done ? ' done' : '');
-  const label = done ? '✓' : '第' + week + '週';
-  return `<button class="${cls}" onclick="toggleWorkoutCheck(${phase},'${key}')">${label}</button>`;
+  var key = day + '_w' + week;
+  var done = isWorkoutChecked(phase, key);
+  var label = done ? '\u2713' : '\u7b2c' + week + '\u9031';
+  return '<button class="wk-box' + (done ? ' done' : '') + '" onclick="toggleWorkoutCheck(' + phase + ',\'' + key + '\')">' + label + '</button>';
 }
+
+// ─── Achievement system ───────────────────────────────────
+const IMG = {
+  sonic:   [1,2,3,4,5,6,7].map(i => 'badges/sonic0'+i+'.png'),
+  ling:    [1,2,3,4,5].map(i => 'badges/ling0'+i+'.png'),
+  orm:     [1,2,3,4,5,6,7,8].map(i => 'badges/orm0'+i+'.png'),
+  jennie:  [1,2,3,4,5,6,7,8,9].map(i => 'badges/jennie0'+i+'.png'),
+  lingorm: [1,2,3,4,5,6,7,8,9,10].map(i => 'badges/lingorm' + String(i).padStart(2,'0') + '.png'),
+};
+function getImg(cat, idx) {
+  if (cat === 'sonic') return IMG.sonic[idx % IMG.sonic.length];
+  if (cat === 'jennie') return IMG.jennie[idx % IMG.jennie.length];
+  if (cat === 'lingorm') return IMG.lingorm[idx % IMG.lingorm.length];
+  if (cat === 'sport') { const pool = [...IMG.ling, ...IMG.orm]; return pool[idx % pool.length]; }
+  return null;
+}
+function getStreakDays(field, fn) {
+  const sorted = [...getDaily()].sort((a,b) => b.date.localeCompare(a.date));
+  let streak = 0, prev = null;
+  for (const d of sorted) {
+    if (!fn(d[field])) break;
+    if (prev) { const diff = (new Date(prev+'T12:00:00') - new Date(d.date+'T12:00:00')) / 86400000; if (diff > 1) break; }
+    streak++; prev = d.date;
+  }
+  return streak;
+}
+function getRecordStreak() {
+  const sorted = [...getDaily()].sort((a,b) => b.date.localeCompare(a.date));
+  let streak = 0, prev = null;
+  for (const d of sorted) {
+    if (prev) { const diff = (new Date(prev+'T12:00:00') - new Date(d.date+'T12:00:00')) / 86400000; if (diff > 1) break; }
+    streak++; prev = d.date;
+  }
+  return streak;
+}
+const ACHIEVEMENTS = [
+  {id:'first_record',  cat:'sonic', idx:0, name:'開始了',     desc:'第一次建立日記錄',        check: function(){ return getDaily().length >= 1; }},
+  {id:'first_food',    cat:'sonic', idx:1, name:'吃起來',     desc:'第一次記錄飲食',          check: function(){ return getFood().length >= 1; }},
+  {id:'first_workout', cat:'sonic', idx:2, name:'動起來',     desc:'第一次完成運動打卡',      check: function(){ return getWorkoutCheckCount() >= 1; }},
+  {id:'first_5k',      cat:'sonic', idx:3, name:'好好走',     desc:'第一次步數超過 5000',     check: function(){ return getDaily().some(function(d){ return (d.steps||0) >= 5000; }); }},
+  {id:'water_3000',    cat:'sonic', idx:4, name:'喝夠了',     desc:'某天飲水超過 3000ml',     check: function(){ return getDaily().some(function(d){ return (d.water||0) >= 3000; }); }},
+  {id:'record_3',      cat:'sonic', idx:5, name:'連續三天',   desc:'連續記錄 3 天',           check: function(){ return getRecordStreak() >= 3; }},
+  {id:'checklist_all', cat:'sonic', idx:6, name:'全勤打卡',   desc:'今日打卡完成全部項目',    check: function(){ return ['sleep7','protein','cal','steps','water','phone','workout','nosnack','stress','veggie'].every(function(c){ return isPlanChecked(c); }); }},
+  {id:'steps_3',    cat:'sport', idx:0, name:'步步為營',   desc:'步數連續 3 天達標',       check: function(){ return getStreakDays('steps', function(s){ return s >= 7000; }) >= 3; }},
+  {id:'steps_7',    cat:'sport', idx:1, name:'健步如飛',   desc:'步數連續 7 天達標',       check: function(){ return getStreakDays('steps', function(s){ return s >= 7000; }) >= 7; }},
+  {id:'steps_14',   cat:'sport', idx:2, name:'連續半月步', desc:'步數連續 14 天達標',      check: function(){ return getStreakDays('steps', function(s){ return s >= 7000; }) >= 14; }},
+  {id:'workout_7',  cat:'sport', idx:3, name:'習慣成型',   desc:'運動打卡累積 7 次',       check: function(){ return getWorkoutCheckCount() >= 7; }},
+  {id:'protein_7',  cat:'sport', idx:4, name:'蛋白質戰士', desc:'蛋白質連續 7 天達標',     check: function(){ return getStreakDays('proteinTotal', function(p){ return p >= 100; }) >= 7; }},
+  {id:'perfect_day',cat:'sport', idx:5, name:'完美一天',   desc:'單日分數達 90 分',        check: function(){ return getDaily().some(function(d){ return (d.score||0) >= 90; }); }},
+  {id:'record_7',   cat:'sport', idx:7, name:'一週全勤',   desc:'連續記錄 7 天',           check: function(){ return getRecordStreak() >= 7; }},
+  {id:'sleep_first',cat:'jennie', idx:0, name:'好好睡一次', desc:'第一次睡滿 7 小時',      check: function(){ return getDaily().some(function(d){ return (d.sleep||0) >= 7; }); }},
+  {id:'sleep_3',    cat:'jennie', idx:1, name:'夢境守護',   desc:'睡眠連續 3 天達標',      check: function(){ return getStreakDays('sleep', function(s){ return s >= 7; }) >= 3; }},
+  {id:'sleep_7',    cat:'jennie', idx:2, name:'睡眠女王',   desc:'睡眠連續 7 天達標',      check: function(){ return getStreakDays('sleep', function(s){ return s >= 7; }) >= 7; }},
+  {id:'no_stress',  cat:'jennie', idx:3, name:'心平氣和',   desc:'壓力 ≤ 2 連續 5 天',     check: function(){ return getStreakDays('stress', function(s){ return s <= 2; }) >= 5; }},
+  {id:'no_snack_7', cat:'jennie', idx:4, name:'夜間清醒',   desc:'連續 7 天沒吃宵夜',      check: function(){ return getStreakDays('lateSnack', function(s){ return !s; }) >= 7; }},
+  {id:'record_30',  cat:'lingorm', idx:0, name:'一個月',   desc:'累積記錄 30 天',          check: function(){ return getDaily().length >= 30; }},
+  {id:'record_60',  cat:'lingorm', idx:1, name:'兩個月',   desc:'累積記錄 60 天',          check: function(){ return getDaily().length >= 60; }},
+  {id:'record_90',  cat:'lingorm', idx:2, name:'三個月',   desc:'累積記錄 90 天',          check: function(){ return getDaily().length >= 90; }},
+  {id:'weight_1kg', cat:'lingorm', idx:3, name:'輕了一點', desc:'體重下降 1kg',            check: function(){ var logs=[].concat(getDaily()).filter(function(d){return d.weight;}).sort(function(a,b){return a.date.localeCompare(b.date);}); return logs.length>=2 && logs[0].weight-logs[logs.length-1].weight>=1; }},
+  {id:'weight_3kg', cat:'lingorm', idx:4, name:'明顯進步', desc:'體重下降 3kg',            check: function(){ var logs=[].concat(getDaily()).filter(function(d){return d.weight;}).sort(function(a,b){return a.date.localeCompare(b.date);}); return logs.length>=2 && logs[0].weight-logs[logs.length-1].weight>=3; }},
+  {id:'score_80_7', cat:'lingorm', idx:5, name:'穩定優秀', desc:'連續 7 天分數 ≥ 80',     check: function(){ return getStreakDays('score', function(s){ return s >= 80; }) >= 7; }},
+];
+const ACHIEVE_KEY = 'lt2_achievements';
+function getUnlocked() { try { return JSON.parse(localStorage.getItem(ACHIEVE_KEY)) || []; } catch { return []; } }
+function saveUnlocked(arr) { localStorage.setItem(ACHIEVE_KEY, JSON.stringify(arr)); }
+function checkAchievements() {
+  var unlocked = getUnlocked(), newOnes = [];
+  ACHIEVEMENTS.forEach(function(a) {
+    if (unlocked.indexOf(a.id) < 0 && a.check()) { unlocked.push(a.id); newOnes.push(a); }
+  });
+  if (newOnes.length) { saveUnlocked(unlocked); newOnes.forEach(showAchievementToast); }
+}
+function showAchievementToast(a) {
+  var img = getImg(a.cat, a.idx);
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#2a2520;color:#fff;padding:10px 18px;border-radius:16px;font-size:14px;font-weight:600;z-index:300;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3)';
+  toast.innerHTML = img ? '<img src="' + img + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover"><div>🎉 成就解鎖<br><span style="font-size:15px">' + a.name + '</span></div>' : '🎉 成就解鎖：' + a.name;
+  document.body.appendChild(toast);
+  setTimeout(function(){ toast.remove(); }, 3500);
+}
+
+// ─── Plan page ────────────────────────────────────────────
 const PLAN_CHECK_KEY = 'lt2_plan_checks';
 function getPlanChecks() { try { return JSON.parse(localStorage.getItem(PLAN_CHECK_KEY)) || {}; } catch { return {}; } }
 function savePlanChecks(obj) { localStorage.setItem(PLAN_CHECK_KEY, JSON.stringify(obj)); }
@@ -1764,7 +1665,6 @@ function isPlanChecked(id) {
 }
 
 let planTab = 'overview';
-let workoutPhase = 1;
 
 function renderPlan() {
   const el = document.getElementById('p-plan');
@@ -1806,13 +1706,13 @@ function renderPlan() {
       <div class="plan-target-grid">
         <div class="plan-target-card">
           <div class="plan-target-label">每日熱量</div>
-          <div class="plan-target-val">1,800–2,000</div>
-          <div class="plan-target-note">kcal · 符合你的代謝需求</div>
+          <div class="plan-target-val">1,550–1,700</div>
+          <div class="plan-target-note">kcal · 溫和熱量赤字</div>
         </div>
         <div class="plan-target-card">
           <div class="plan-target-label">每日蛋白質</div>
           <div class="plan-target-val">100–120</div>
-          <div class="plan-target-note">g · 每餐均分攝取</div>
+          <div class="plan-target-note">g · 體重×1.2–1.5g</div>
         </div>
         <div class="plan-target-card">
           <div class="plan-target-label">每日步數</div>
@@ -1845,6 +1745,7 @@ function renderPlan() {
   }
 
   else if (planTab === 'workout') {
+    let workoutPhase = (typeof window._workoutPhase === 'undefined') ? 1 : window._workoutPhase;
     const phaseTabs = [
       {id:1,label:'第 1–2 週'},
       {id:2,label:'第 3–4 週'},
@@ -1925,7 +1826,7 @@ function renderPlan() {
 
     content = `
       <div style="display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none">
-        ${phaseTabs.map(t=>`<button style="white-space:nowrap;padding:6px 13px;border-radius:99px;font-size:12px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;font-family:inherit;background:${workoutPhase===t.id?'var(--t1)':'var(--card)'};color:${workoutPhase===t.id?'#fff':'var(--t2)'}" onclick="workoutPhase=${t.id};renderPlan()">${t.label}</button>`).join('')}
+        ${phaseTabs.map(t=>`<button style="white-space:nowrap;padding:6px 13px;border-radius:99px;font-size:12px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;font-family:inherit;background:${workoutPhase===t.id?'var(--t1)':'var(--card)'};color:${workoutPhase===t.id?'#fff':'var(--t2)'}" onclick="window._workoutPhase=${t.id};renderPlan()">${t.label}</button>`).join('')}
       </div>
       <div class="plan-phase-banner">
         <div><div class="plan-phase-name">${ph.name}｜${ph.sub}</div></div>
@@ -1951,7 +1852,7 @@ function renderPlan() {
                 `).join('')}
               <div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
                 <span style="font-size:11px;color:var(--t3);flex:1">完成打卡</span>
-                ${[1,2].map(w => renderWkBox(workoutPhase, d.day, w)).join("")}
+                ${[1,2].map(w => renderWkBox(workoutPhase, d.day, w)).join('')}
               </div>
             </div>
           </div>`).join('')}
@@ -1975,15 +1876,14 @@ function renderPlan() {
           <thead><tr><th>食物</th><th>份量</th><th>蛋白質</th><th>備註</th></tr></thead>
           <tbody>
             ${[
-              {n:'雞蛋',a:'2顆',p:12,w:40,note:'水煮免顧，隨時補'},
-              {n:'雞胸肉',a:'100g',p:25,w:83,note:'舒肥即食包最方便'},
-              {n:'茶葉蛋',a:'2顆',p:14,w:47,note:'便利商店隨手買'},
-              {n:'雞腿便當',a:'1個',p:28,w:93,note:'自助餐必點，飯減半'},
-              {n:'水煮雞胸',a:'100g',p:31,w:100,note:'自助餐點這個'},
+              {n:'雞蛋',a:'2顆',p:12,w:12,note:'水煮免顧'},
+              {n:'雞胸肉',a:'100g',p:25,w:83,note:'超市即食包'},
+              {n:'無糖豆漿',a:'500ml',p:18,w:60,note:'早餐最快補'},
               {n:'希臘優格',a:'150g',p:15,w:50,note:'選無糖款'},
-              {n:'無糖鮮奶',a:'500ml',p:16,w:53,note:'不喝豆漿的替代'},
-              {n:'板豆腐',a:'150g',p:13,w:43,note:'滷過更好吃'},
+              {n:'板豆腐',a:'150g',p:13,w:43,note:'最便宜植物蛋白'},
+              {n:'鮪魚罐頭',a:'1罐150g',p:33,w:100,note:'開罐即食'},
               {n:'毛豆',a:'100g',p:11,w:37,note:'冷凍包微波3分鐘'},
+              {n:'茶葉蛋',a:'2顆',p:14,w:47,note:'便利商店隨手買'},
             ].map(f=>`<tr>
               <td style="font-weight:500">${f.n}</td>
               <td style="color:var(--t2)">${f.a}</td>
@@ -1994,13 +1894,13 @@ function renderPlan() {
         </table>
       </div>
 
-      <div class="sec">一日三餐示範（你的版本）</div>
+      <div class="sec">懶人一日三餐示範（合計 100g+）</div>
       <div class="card" style="margin-bottom:12px">
         ${[
-          {meal:'早餐',name:'鮮奶 + 茶葉蛋 2 顆 + 熱食',desc:'無糖鮮奶 500ml + 便利商店熱食（包子/飯糰/熱湯）',prot:'30g'},
-          {meal:'午餐',name:'自助餐策略',desc:'雞腿或雞胸 + 2–3 種燙青菜 + 少量飯，熱的鹹食最滿足',prot:'35g'},
-          {meal:'點心',name:'希臘優格 150g（無糖）',desc:'飽足感高，補蛋白質又不會太撐',prot:'15g'},
-          {meal:'晚餐',name:'雞肉料理 + 燙青菜 + 少量飯',desc:'可以是外食雞腿飯、家裡炒雞肉，菜類都OK',prot:'28g'},
+          {meal:'早餐',name:'無糖豆漿 + 水煮蛋 2 顆',desc:'500ml 豆漿 + 前一晚預煮，5 分鐘搞定',prot:'30g'},
+          {meal:'午餐',name:'便利商店策略',desc:'茶葉蛋 2 顆 + 雞胸便當（減半白飯）',prot:'35g'},
+          {meal:'點心',name:'希臘優格 150g（無糖）',desc:'飽足感高，避免晚餐過量',prot:'15g'},
+          {meal:'晚餐',name:'板豆腐 + 蔬菜 + 少量飯',desc:'豆腐切塊加醬油蒸熟，搭配冷凍蔬菜包',prot:'20g'},
         ].map(r=>`<div class="plan-food-row">
           <div class="plan-food-meal">${r.meal}</div>
           <div style="flex:1;margin:0 8px"><div class="plan-food-name" style="margin:0">${r.name}</div><div class="plan-food-desc">${r.desc}</div></div>
@@ -2008,32 +1908,32 @@ function renderPlan() {
         </div>`).join('')}
         <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
           <div style="font-size:12px;color:var(--t2)">合計蛋白質</div>
-          <div style="font-size:14px;font-weight:700;color:var(--green)">108g ✓</div>
+          <div style="font-size:14px;font-weight:700;color:var(--green)">100g ✓</div>
         </div>
       </div>
 
-      <div class="sec">自助餐點餐原則</div>
+      <div class="sec">外食點餐原則</div>
       <div class="plan-tip-grid" style="margin-bottom:12px">
-        <div class="plan-tip-card"><div class="plan-tip-title">雞肉優先</div><div class="plan-tip-desc">雞腿、雞胸、三杯雞都行，蛋白質高又好吃</div></div>
-        <div class="plan-tip-card"><div class="plan-tip-title">菜類隨意選</div><div class="plan-tip-desc">各種燙青菜、炒菜都OK，不用特別挑</div></div>
-        <div class="plan-tip-card"><div class="plan-tip-title">飯減半</div><div class="plan-tip-desc">少飯多菜多肉，不需找特別的健康餐廳</div></div>
-        <div class="plan-tip-card"><div class="plan-tip-title">下午 2 點後停咖啡因</div><div class="plan-tip-desc">半衰期 5–7 小時，晚上仍有殘留影響睡眠</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">飯減半</div><div class="plan-tip-desc">多加一個蛋或豆腐，不需特別找健康餐廳</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">週日備餐 30 分鐘</div><div class="plan-tip-desc">煮 10 顆水煮蛋、滷豆腐，放冰箱用 4–5 天</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">下午 2 點後停咖啡因</div><div class="plan-tip-desc">半衰期 5–7 小時，晚上仍有殘留</div></div>
+        <div class="plan-tip-card"><div class="plan-tip-title">喝的蛋白質</div><div class="plan-tip-desc">一天兩瓶無糖豆漿 = 36g，完全不需料理</div></div>
       </div>
 
-      <div class="plan-warn">蛋白質要分散在三餐攝取，每餐 25–35g 的效果遠比一餐吃 80g 更好。正餐吃熱的鹹食完全沒問題，重點是有沒有蛋白質來源。</div>
+      <div class="plan-warn">蛋白質要分散在三餐攝取，每餐 25–35g 的效果遠比一餐吃 80g 更好。身體單次能用於肌肉合成的蛋白質有上限。</div>
     `;
   }
 
   else if (planTab === 'sleep') {
     content = `
-      <div class="sec">睡前 2 小時黃金作息（從你預計睡覺時間往前算）</div>
+      <div class="sec">睡前 2 小時黃金作息</div>
       <div style="margin-bottom:14px">
         ${[
-          {time:'−2h',title:'調暗燈光，停止工作',desc:'關掉電腦，將室內燈換成暖色光。不一定要9點，加班到11點就從11點往前算。'},
-          {time:'−1.5h',title:'溫水淋浴 10 分鐘',desc:'38–40°C 溫水浴後體溫快速下降，平均縮短入睡時間 10–15 分鐘。'},
-          {time:'−1h',title:'手機放到房間外',desc:'切換飛航模式或放到臥室外充電，通知聲讓大腦持續保持警覺。'},
-          {time:'−30m',title:'10 分鐘放鬆活動',desc:'輕鬆閱讀、緩慢伸展、寫隔天待辦清單（把明天的事卸載出腦袋）。'},
-          {time:'就寢',title:'固定時間上床',desc:'盡量維持同樣的就寢時間，大腦靠固定信號建立睡眠節律。'},
+          {time:'9pm',title:'燈光調暗 + 停止工作',desc:'關掉電腦，將室內燈換成暖色光。藍光抑制褪黑激素分泌。'},
+          {time:'9:15',title:'溫水淋浴 10 分鐘',desc:'38–40°C 溫水浴後體溫快速下降，平均縮短入睡時間 10–15 分鐘。'},
+          {time:'9:30',title:'手機放到房間外',desc:'切換飛航模式或放到臥室外充電，通知聲讓大腦持續保持警覺狀態。'},
+          {time:'9:40',title:'10 分鐘放鬆活動',desc:'輕鬆閱讀紙本書、緩慢伸展、寫隔天待辦清單（把明天的事卸載出腦袋）。'},
+          {time:'10pm',title:'上床，固定時間',desc:'就算睡不著也在 10–10:30pm 躺下。大腦靠固定時間信號建立睡眠節律。'},
         ].map(s=>`<div class="plan-sleep-item">
           <div class="plan-sleep-time">${s.time}</div>
           <div class="plan-sleep-card">
@@ -2042,9 +1942,6 @@ function renderPlan() {
           </div>
         </div>`).join('')}
       </div>
-
-      <div class="sec">關於補眠（你的情況特別說明）</div>
-      <div class="plan-warn" style="margin-bottom:12px">你長期睡眠不足，週末適度補眠是必要的。建議補眠最多 1.5 小時，不要超過平常起床時間 2 小時以上。目標是逐漸把平日睡眠時間拉長，而不是靠週末大補。</div>
 
       <div class="sec">臥室環境調整</div>
       <div class="plan-env-grid">
@@ -2061,21 +1958,21 @@ function renderPlan() {
         <div class="plan-do">
           <div class="pdh">有助睡眠</div>
           <ul style="padding-left:14px;margin:0">
-            ${['固定起床時間（含假日）','白天曬 15 分鐘陽光','下午後不喝咖啡因','睡前寫出明天待辦','規律輕度運動'].map(t=>`<li style="font-size:12px;color:#085041;margin-bottom:3px">${t}</li>`).join('')}
+            ${['固定起床時間（含假日）','白天曬 15 分鐘陽光','下午後不喝咖啡因','睡前寫出明天待辦','規律輕度運動'].map(t=>`<li class="plan-do" style="background:none;border:none;padding:0">${t}</li>`).join('')}
           </ul>
         </div>
         <div class="plan-dont">
           <div class="pdh">破壞睡眠</div>
           <ul style="padding-left:14px;margin:0">
-            ${['睡前滑手機','睡前飲酒（讓睡眠變淺）','白天小睡超過 20 分鐘','晚上劇烈運動','補眠超過平常 2 小時'].map(t=>`<li style="font-size:12px;color:#A32D2D;margin-bottom:3px">${t}</li>`).join('')}
+            ${['睡前滑手機','睡前飲酒（讓睡眠變淺）','補眠超過 90 分鐘','晚上劇烈運動','週末睡到中午'].map(t=>`<li class="plan-dont" style="background:none;border:none;padding:0">${t}</li>`).join('')}
           </ul>
         </div>
       </div>
 
       <div class="plan-stress-box">
-        <div class="plan-stress-title">壓力大、腦袋關不掉時：三個方法</div>
+        <div class="plan-stress-title">壓力大時：讓大腦真正關機的三個方法</div>
         <div class="plan-stress-item">① 「擔憂清單」法：睡前把腦中煩惱寫下來，後面加一句「明天再處理」</div>
-        <div class="plan-stress-item">② 4-7-8 呼吸法：吸氣 4 秒 → 屏氣 7 秒 → 吐氣 8 秒，重複 4 次。對你特別有用，因為長期高壓讓神經系統很難切換。</div>
+        <div class="plan-stress-item">② 4-7-8 呼吸法：吸氣 4 秒 → 屏氣 7 秒 → 吐氣 8 秒，重複 4 次</div>
         <div class="plan-stress-item">③ 身體掃描：從腳趾開始逐步放鬆每個部位，讓大腦有事做</div>
       </div>
 
@@ -2088,16 +1985,16 @@ function renderPlan() {
 
   else if (planTab === 'checklist') {
     const checks = [
-      {id:'sleep7',   label:'昨晚睡滿 7 小時'},
-      {id:'protein',  label:'蛋白質達到 100g 以上'},
-      {id:'cal',      label:'熱量在 1,800–2,000 kcal'},
-      {id:'steps',    label:'步數達到 7,000 步'},
-      {id:'water',    label:'飲水 2,000ml 以上'},
-      {id:'phone',    label:'睡前手機放到房間外'},
-      {id:'workout',  label:'完成今日運動計畫'},
-      {id:'nosnack',  label:'沒有吃宵夜'},
-      {id:'stress',   label:'壓力 ≤ 3 分'},
-      {id:'veggie',   label:'蔬菜至少 2 份'},
+      {id:'sleep7',label:'昨晚睡滿 7 小時'},
+      {id:'protein',label:'蛋白質達到 100g 以上'},
+      {id:'cal',label:'熱量在 1,800–2,000 kcal'},
+      {id:'steps',label:'步數達到 7,000 步'},
+      {id:'water',label:'飲水 2,000ml 以上'},
+      {id:'phone',label:'睡前手機放到房間外'},
+      {id:'workout',label:'完成今日運動計畫'},
+      {id:'nosnack',label:'沒有吃宵夜'},
+      {id:'stress',label:'壓力 ≤ 3 分'},
+      {id:'veggie',label:'蔬菜至少 2 份'},
     ];
     const done = checks.filter(c => isPlanChecked(c.id)).length;
     const pct = Math.round((done / checks.length) * 100);
@@ -2125,40 +2022,28 @@ function renderPlan() {
 
   else if (planTab === 'achievements') {
     checkAchievements();
-    const unlocked = getUnlocked();
-
-    const renderGroup = (title, items) => `
-      <div class="sec">${title}</div>
-      <div class="achieve-grid">
-        ${items.map(a => {
-          const done = unlocked.includes(a.id);
-          const img = getImg(a.cat, a.idx);
-          return `<div class="achieve-card ${done?'unlocked':'locked'}">
-            ${done && img
-              ? `<img src="${img}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;margin-bottom:6px">`
-              : `<div style="font-size:36px;margin-bottom:6px;line-height:1">${done?'⭐':'🔒'}</div>`}
-            <div class="achieve-name">${a.name}</div>
-            <div class="achieve-desc">${done ? a.desc : '？？？'}</div>
-            ${done ? '<div class="achieve-badge">✦ 已解鎖</div>' : ''}
-          </div>`;
-        }).join('')}
-      </div>`;
-
-    const sonic_g  = ACHIEVEMENTS.filter(a => a.cat === 'sonic');
-    const sport_g  = ACHIEVEMENTS.filter(a => a.cat === 'lingorm_sport');
-    const jennie_g = ACHIEVEMENTS.filter(a => a.cat === 'jennie');
-    const long_g   = ACHIEVEMENTS.filter(a => a.cat === 'lingorm');
-
-    content = `
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div style="font-size:13px;color:var(--t2)">已解鎖 <span style="font-weight:700;color:var(--t1)">${unlocked.length}</span> / ${ACHIEVEMENTS.length}</div>
-      </div>
-      <div class="plan-progress-wrap" style="margin-bottom:16px"><div class="plan-progress-bar" style="width:${Math.round(unlocked.length/ACHIEVEMENTS.length*100)}%"></div></div>
-      ${renderGroup('🌱 起步成就', sonic_g)}
-      ${renderGroup('☀️ 運動 · 步數 · 飲食', sport_g)}
-      ${renderGroup('💜 睡眠 · 放鬆 · 壓力', jennie_g)}
-      ${renderGroup('🏆 長期成就', long_g)}
-    `;
+    var unlocked = getUnlocked();
+    var groups = [
+      {title:'🌱 起步成就', items: ACHIEVEMENTS.filter(function(a){ return a.cat==='sonic'; })},
+      {title:'☀️ 運動 · 步數 · 飲食', items: ACHIEVEMENTS.filter(function(a){ return a.cat==='sport'; })},
+      {title:'💜 睡眠 · 放鬆 · 壓力', items: ACHIEVEMENTS.filter(function(a){ return a.cat==='jennie'; })},
+      {title:'🏆 長期成就', items: ACHIEVEMENTS.filter(function(a){ return a.cat==='lingorm'; })},
+    ];
+    content = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="font-size:13px;color:var(--t2)">已解鎖 <span style="font-weight:700;color:var(--t1)">' + unlocked.length + '</span> / ' + ACHIEVEMENTS.length + '</div></div>' +
+      '<div class="plan-progress-wrap" style="margin-bottom:16px"><div class="plan-progress-bar" style="width:' + Math.round(unlocked.length/ACHIEVEMENTS.length*100) + '%"></div></div>' +
+      groups.map(function(g){
+        return '<div class="sec">' + g.title + '</div><div class="achieve-grid">' +
+          g.items.map(function(a){
+            var done = unlocked.indexOf(a.id) >= 0;
+            var img = getImg(a.cat, a.idx);
+            return '<div class="achieve-card ' + (done?'unlocked':'locked') + '">' +
+              (done && img ? '<img src="' + img + '" style="width:52px;height:52px;border-radius:50%;object-fit:cover;margin-bottom:6px">' : '<div style="font-size:32px;margin-bottom:6px">🔒</div>') +
+              '<div class="achieve-name">' + a.name + '</div>' +
+              '<div class="achieve-desc">' + (done ? a.desc : '？？？') + '</div>' +
+              (done ? '<div class="achieve-badge">✦ 已解鎖</div>' : '') +
+              '</div>';
+          }).join('') + '</div>';
+      }).join('');
   }
 
   el.innerHTML = `
