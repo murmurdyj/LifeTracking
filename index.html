@@ -75,8 +75,8 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .label{font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
 
 /* Modal */
-.overlay{position:fixed;inset:0;background:rgba(42,37,32,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .15s;-webkit-overflow-scrolling:touch}
-.sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:6px 18px calc(28px + var(--safe));animation:slideUp .22s;position:relative;z-index:101}
+.overlay{position:fixed;inset:0;background:rgba(42,37,32,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .15s;-webkit-overflow-scrolling:touch}
+.sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:6px 18px calc(28px + var(--safe));animation:slideUp .22s;position:relative;z-index:201}
 .handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:6px auto 14px}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -380,6 +380,7 @@ canvas{width:100%!important}
 
 <script>
 // ─── Utils ───────────────────────────────────────────────
+window.onerror = (msg, src, line, col, err) => { console.error('App Error:', msg, 'line:', line); return false; };
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const daysAgo = n => { const d = new Date(); d.setDate(d.getDate()-n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const fmtDate = d => new Date(d+'T12:00:00').toLocaleDateString('zh-TW',{month:'short',day:'numeric',weekday:'short'});
@@ -552,7 +553,7 @@ function showModal(html) {
   ov.className = 'overlay';
   ov.innerHTML = `<div class="sheet">${html}</div>`;
   ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
-  document.getElementById('app').appendChild(ov);
+  document.body.appendChild(ov);
   return ov;
 }
 function closeModal() { document.querySelector('.overlay')?.remove(); }
@@ -1751,6 +1752,7 @@ function isPlanChecked(id) {
 }
 
 let planTab = 'overview';
+let workoutPhase = 1;
 
 function renderPlan() {
   const el = document.getElementById('p-plan');
@@ -1831,7 +1833,6 @@ function renderPlan() {
   }
 
   else if (planTab === 'workout') {
-    let workoutPhase = (typeof window._workoutPhase === 'undefined') ? 1 : window._workoutPhase;
     const phaseTabs = [
       {id:1,label:'第 1–2 週'},
       {id:2,label:'第 3–4 週'},
@@ -1912,7 +1913,7 @@ function renderPlan() {
 
     content = `
       <div style="display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none">
-        ${phaseTabs.map(t=>`<button style="white-space:nowrap;padding:6px 13px;border-radius:99px;font-size:12px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;font-family:inherit;background:${workoutPhase===t.id?'var(--t1)':'var(--card)'};color:${workoutPhase===t.id?'#fff':'var(--t2)'}" onclick="window._workoutPhase=${t.id};renderPlan()">${t.label}</button>`).join('')}
+        ${phaseTabs.map(t=>`<button style="white-space:nowrap;padding:6px 13px;border-radius:99px;font-size:12px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;font-family:inherit;background:${workoutPhase===t.id?'var(--t1)':'var(--card)'};color:${workoutPhase===t.id?'#fff':'var(--t2)'}" onclick="workoutPhase=${t.id};renderPlan()">${t.label}</button>`).join('')}
       </div>
       <div class="plan-phase-banner">
         <div><div class="plan-phase-name">${ph.name}｜${ph.sub}</div></div>
