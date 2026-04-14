@@ -1113,8 +1113,14 @@ function renderDashboard() {
   const riskColor = risk > 60 ? 'red' : risk > 30 ? 'yellow' : 'green';
   const riskLabel = risk > 60 ? '高風險' : risk > 30 ? '中等' : '低風險';
   const sleepOk = (log.sleep||0) >= 7, stepsOk = (log.steps||0) >= 7000;
-  const calOk = (log.caloriesTotal||0) >= 1400 && (log.caloriesTotal||0) <= 1800;
-  const protOk = (log.proteinTotal||0) >= 100;
+  const c = log.caloriesTotal||0;
+  const calOk = c >= 1800 && c <= 2000;
+  const calPartial = c >= 1600 && c < 1800;
+  const protOk = (log.proteinTotal||0) >= 120;
+  const protPartial = (log.proteinTotal||0) >= 100;
+  const waterOk = (log.water||0) >= 2500;
+  const waterPartial = (log.water||0) >= 2000;
+  const stepsPartial = (log.steps||0) >= 5000;
   const ring = ringHTML(sc, scoreColor(sc));
   const moodEmojis = ['😞','😕','😐','🙂','😄'];
   const stressEmojis = ['😌','🙂','😐','😣','😰'];
@@ -1133,12 +1139,12 @@ function renderDashboard() {
           <div class="score-title">今日健康分數</div>
           <div class="score-rules">
             ${sleepTieredRule(log.sleep||0)}
-            ${sRule('熱量 1400-1800', calOk, 20)}
-            ${sRule('蛋白質 ≥ 100g', protOk, 20)}
+            ${sRuleTiered('熱量', calOk, calPartial, 20, 12, calOk?'1800-2000':calPartial?'1600-1800':'未達標')}
+            ${sRuleTiered('蛋白質', protOk, protPartial, 20, 12, protOk?'≥120g':protPartial?'100-120g':'不足')}
             ${sRule('壓力 ≤ 3', (log.stress||5)<=3, 15)}
-            ${sRule('步數 ≥ 7000', stepsOk, 10)}
+            ${sRuleTiered('步數', stepsOk, stepsPartial, 10, 5, stepsOk?'≥7000':stepsPartial?'5000-7000':'不足')}
             ${sRule('沒有宵夜', !log.lateSnack, 5)}
-            ${sRule('飲水 ≥ 2500ml', (log.water||0)>=2500, 5)}
+            ${sRuleTiered('飲水', waterOk, waterPartial, 5, 3, waterOk?'≥2500ml':waterPartial?'2000-2500':'不足')}
           </div>
         </div>
       </div>
@@ -1246,6 +1252,16 @@ function sleepTieredRule(sleep) {
 
 function sRule(label, met, pts) {
   return `<div class="score-rule"><span class="sr-dot${met?' met':''}"></span><span class="sr-lbl">${label}</span><span class="sr-pts${met?' met':''}">+${pts}</span></div>`;
+}
+function sRuleTiered(label, full, partial, fullPts, partialPts, statusText) {
+  const met = full || partial;
+  const pts = full ? fullPts : partial ? partialPts : 0;
+  const dotStyle = partial && !full ? 'background:linear-gradient(135deg,var(--yellow) 50%,var(--border) 50%)' : '';
+  return `<div class="score-rule">
+    <span class="sr-dot${met?' met':''}" style="${dotStyle}"></span>
+    <span class="sr-lbl">${label} <span style="font-size:10px;color:var(--t3)">${statusText}</span></span>
+    <span class="sr-pts${met?' met':''}">${pts>0?'+'+pts:'0'}</span>
+  </div>`;
 }
 
 function statCard(emoji, title, value, unit, colorKey, status, target) {
