@@ -288,6 +288,12 @@ canvas{width:100%!important}
 .backup{margin-top:4px}
 .backup-title{font-size:14px;font-weight:600;margin-bottom:10px}
 .backup-row{display:flex;gap:8px}
+.type-btn{padding:7px 14px;border-radius:99px;border:1.5px solid var(--border);background:var(--soft);font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s}
+.type-btn.selected{background:var(--t1);border-color:var(--t1);color:#fff}
+.fw-row{display:flex;align-items:center;padding:10px 14px;gap:10px;border-bottom:1px solid var(--border)}
+.fw-row:last-child{border-bottom:none}
+.fw-type{font-size:13px;font-weight:600;color:var(--t1)}
+.fw-meta{font-size:12px;color:var(--t3);margin-top:2px}
 .wk-box{min-width:44px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--soft);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--t3);font-family:inherit;padding:0 6px}
 .wk-box.done{background:var(--green);border-color:var(--green);color:#fff}
 .achieve-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
@@ -508,7 +514,7 @@ function deleteFood(id) {
   if (food) { STATE.daily = recalcDay(STATE.daily, STATE.food, food.date); saveDaily(STATE.daily); }
 }
 function exportJSON() {
-  const blob = new Blob([JSON.stringify({dailyLogs:STATE.daily,foodLogs:STATE.food,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const blob = new Blob([JSON.stringify({dailyLogs:STATE.daily,foodLogs:STATE.food,freeWorkouts:getFreeWorkouts(),exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `lifetrack-${today()}.json`; a.click();
 }
@@ -517,6 +523,7 @@ function importJSON(text) {
     const d = JSON.parse(text);
     if (d.dailyLogs) { STATE.daily = d.dailyLogs; saveDaily(STATE.daily); }
     if (d.foodLogs) { STATE.food = d.foodLogs; saveFood(STATE.food); }
+    if (d.freeWorkouts) { saveFreeWorkouts(d.freeWorkouts); }
     return true;
   } catch { return false; }
 }
@@ -1308,7 +1315,10 @@ function renderDaily() {
   el.innerHTML = `
     <div class="ph">
       <div class="ph-left"><div class="eyebrow">歷史記錄</div><div class="title">Daily Log</div></div>
-      <button class="btn btn-primary btn-sm" onclick="dailyModal(null)">+ 新增</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="freeWorkoutModal(null)">🏃 運動</button>
+        <button class="btn btn-primary btn-sm" onclick="dailyModal(null)">+ 新增</button>
+      </div>
     </div>
     ${sorted.length === 0 ? `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">還沒有任何記錄</div><button class="btn btn-primary" onclick="dailyModal(null)">+ 新增記錄</button></div>` :
       groups.map(([ym, logs], gi) => {
@@ -1338,7 +1348,15 @@ function renderDaily() {
                     <span style="font-size:12px;color:var(--t3)">分</span>
                     <span class="log-arrow">›</span>
                   </div>
-                </button>`;
+                </button>
+                ${getFreeWorkoutsByDate(log.date).map(function(w){
+                  return '<div class="fw-row" style="background:var(--soft);border-radius:10px;margin-top:4px">' +
+                    '<span style="font-size:18px">' + ({'散步':'🚶','跑步':'🏃','球類':'⚽','騎車':'🚴','健身':'💪','其他':'🏋️'}[w.type]||'🏃') + '</span>' +
+                    '<div style="flex:1"><div class="fw-type">' + w.type + ' ' + w.duration + ' 分鐘</div>' +
+                    '<div class="fw-meta">' + (w.calories?'🔥 '+w.calories+'kcal':'') + (w.heartRate?' · ❤️ '+w.heartRate+'bpm':'') + '</div></div>' +
+                    '<button onclick="deleteFreeWorkout(\'' + w.id + '\')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--t3);padding:4px">✕</button>' +
+                    '</div>';
+                }).join('')}`;
               }).join('')}
             </div>
           </div>
@@ -1652,6 +1670,11 @@ const ACHIEVEMENTS = [
   {id:'protein_7',  cat:'sport', idx:4, name:'蛋白質戰士', desc:'蛋白質連續 7 天達標',     check: function(){ return getStreakDays('proteinTotal', function(p){ return p >= 100; }) >= 7; }},
   {id:'perfect_day',cat:'sport', idx:5, name:'完美一天',   desc:'單日分數達 90 分',        check: function(){ return getDaily().some(function(d){ return (d.score||0) >= 90; }); }},
   {id:'record_7',   cat:'sport', idx:7, name:'一週全勤',   desc:'連續記錄 7 天',           check: function(){ return getRecordStreak() >= 7; }},
+  {id:'fw_first',   cat:'sport', idx:8,  name:'邁出第一步', desc:'第一次記錄自由運動',       check: function(){ return getTotalFreeWorkouts() >= 1; }},
+  {id:'fw_5',       cat:'sport', idx:9,  name:'動起來了',   desc:'自由運動累積 5 次',        check: function(){ return getTotalFreeWorkouts() >= 5; }},
+  {id:'fw_20',      cat:'sport', idx:10, name:'運動習慣',   desc:'自由運動累積 20 次',       check: function(){ return getTotalFreeWorkouts() >= 20; }},
+  {id:'fw_week3',   cat:'sport', idx:11, name:'本週有動',   desc:'同一週內自由運動 3 次',    check: function(){ return getFreeWorkoutsThisWeek() >= 3; }},
+  {id:'fw_hr5',     cat:'sport', idx:12, name:'心跳加速',   desc:'平均心率 ≥ 100bpm 累積 5 次', check: function(){ return getHighHRWorkouts() >= 5; }},
   {id:'sleep_first',cat:'jennie', idx:0, name:'好好睡一次', desc:'第一次睡滿 7 小時',      check: function(){ return getDaily().some(function(d){ return (d.sleep||0) >= 7; }); }},
   {id:'sleep_3',    cat:'jennie', idx:1, name:'夢境守護',   desc:'睡眠連續 3 天達標',      check: function(){ return getStreakDays('sleep', function(s){ return s >= 7; }) >= 3; }},
   {id:'sleep_7',    cat:'jennie', idx:2, name:'睡眠女王',   desc:'睡眠連續 7 天達標',      check: function(){ return getStreakDays('sleep', function(s){ return s >= 7; }) >= 7; }},
@@ -1683,7 +1706,77 @@ function showAchievementToast(a) {
   setTimeout(function(){ toast.remove(); }, 3500);
 }
 
-// ─── Plan page ────────────────────────────────────────────
+// ─── Free Workout ─────────────────────────────────────────
+const FREE_WORKOUT_KEY = 'lt2_free_workouts';
+function getFreeWorkouts() { try { return JSON.parse(localStorage.getItem(FREE_WORKOUT_KEY)) || []; } catch { return []; } }
+function saveFreeWorkouts(arr) { localStorage.setItem(FREE_WORKOUT_KEY, JSON.stringify(arr)); }
+function addFreeWorkout(w) {
+  var arr = getFreeWorkouts();
+  arr.push(w);
+  saveFreeWorkouts(arr);
+  // 累加動態卡路里到當天 activeEnergy
+  var daily = STATE.daily;
+  var idx = daily.findIndex(function(d){ return d.date === w.date; });
+  if (idx >= 0) {
+    daily[idx].activeEnergy = (daily[idx].activeEnergy || 0) + (w.calories || 0);
+    daily[idx].score = calcScore(daily[idx]);
+    saveDaily(daily);
+  }
+}
+function deleteFreeWorkout(id) {
+  var arr = getFreeWorkouts().filter(function(w){ return w.id !== id; });
+  saveFreeWorkouts(arr);
+  renderDaily();
+  renderDashboard();
+}
+function getFreeWorkoutsByDate(date) {
+  return getFreeWorkouts().filter(function(w){ return w.date === date; });
+}
+function getTotalFreeWorkouts() { return getFreeWorkouts().length; }
+function getFreeWorkoutsThisWeek() {
+  var now = new Date();
+  var startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+  startOfWeek.setHours(0,0,0,0);
+  return getFreeWorkouts().filter(function(w){
+    return new Date(w.date + 'T12:00:00') >= startOfWeek;
+  }).length;
+}
+function getHighHRWorkouts() {
+  return getFreeWorkouts().filter(function(w){ return (w.heartRate||0) >= 100; }).length;
+}
+
+function freeWorkoutModal(date) {
+  var d = date || today();
+  var types = ['\u6563\u6b65','\u8dd1\u6b65','\u7403\u985e','\u9a0e\u8eca','\u5065\u8eab','\u5176\u4ed6'];
+  showModal('\n    <div class="handle"></div>\n    <div class="modal-head">\n      <span class="modal-title">\uD83C\uDFC3 \u81EA\u7531\u904b\u52d5</span>\n      <button class="btn btn-ghost btn-sm" onclick="closeModal()">\u2715</button>\n    </div>\n    <div style="margin-bottom:10px">\n      <label class="label">\u65e5\u671f</label>\n      <input type="date" id="fw-date" class="input" value="' + d + '" max="' + today() + '">\n    </div>\n    <div style="margin-bottom:10px">\n      <label class="label">\u904b\u52d5\u985e\u578b</label>\n      <div style="display:flex;flex-wrap:wrap;gap:8px">' +
+    types.map(function(t){ return '<button class="type-btn" id="fwt-' + t + '" onclick="selectFWType(\'' + t + '\')">' + t + '</button>'; }).join('') +
+  '</div>\n      <input type="hidden" id="fw-type" value="">\n    </div>\n    <div class="g2-form" style="margin-bottom:10px">\n      <div>\n        <label class="label">\u6642\u9593\uff08\u5206\u9418\uff09</label>\n        <div class="input-wrap"><input type="number" id="fw-duration" class="input" placeholder="\u2014" min="1" max="300"><span class="input-unit">\u5206</span></div>\n      </div>\n      <div>\n        <label class="label">\u52d5\u614b\u5361\u8def\u91cc</label>\n        <div class="input-wrap"><input type="number" id="fw-cal" class="input" placeholder="\u2014" min="0"><span class="input-unit">kcal</span></div>\n      </div>\n    </div>\n    <div style="margin-bottom:16px">\n      <label class="label">\u5e73\u5747\u5fc3\u7387 <span style="font-size:10px;color:var(--t3)">\u9078\u586b\uff0cApple \u5065\u5eb7 App \u67e5\u770b</span></label>\n      <div class="input-wrap"><input type="number" id="fw-hr" class="input" placeholder="\u2014" min="40" max="220"><span class="input-unit">bpm</span></div>\n    </div>\n    <div class="modal-actions">\n      <button class="btn btn-primary" style="flex:1" onclick="doSaveFreeWorkout()">儲存運動</button>\n    </div>\n  ');
+}
+
+function selectFWType(t) {
+  document.getElementById('fw-type').value = t;
+  document.querySelectorAll('.type-btn').forEach(function(b){ b.classList.remove('selected'); });
+  var btn = document.getElementById('fwt-' + t);
+  if (btn) btn.classList.add('selected');
+}
+
+function doSaveFreeWorkout() {
+  try {
+    var date = document.getElementById('fw-date').value;
+    var type = document.getElementById('fw-type').value;
+    var duration = parseFloat(document.getElementById('fw-duration').value) || 0;
+    var cal = parseFloat(document.getElementById('fw-cal').value) || 0;
+    var hr = parseFloat(document.getElementById('fw-hr').value) || 0;
+    if (!type) { alert('\u8acb\u9078\u64c7\u904b\u52d5\u985e\u578b'); return; }
+    if (!duration) { alert('\u8acb\u586b\u5165\u904b\u52d5\u6642\u9593'); return; }
+    addFreeWorkout({ id: uid(), date: date, type: type, duration: duration, calories: cal, heartRate: hr });
+    closeModal();
+    checkAchievements();
+    renderDaily();
+    renderDashboard();
+  } catch(e) { alert('\u5132\u5b58\u5931\u6557\uff1a' + e.message); }
+}
 const PLAN_CHECK_KEY = 'lt2_plan_checks';
 function getPlanChecks() { try { return JSON.parse(localStorage.getItem(PLAN_CHECK_KEY)) || {}; } catch { return {}; } }
 function savePlanChecks(obj) { localStorage.setItem(PLAN_CHECK_KEY, JSON.stringify(obj)); }
